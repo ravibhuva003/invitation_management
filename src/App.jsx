@@ -106,6 +106,7 @@ export default function App() {
     // Subscribe to invitation entries
     const unsubscribeInvitations = dbOperations.subscribeInvitationEntries((data) => {
       setInvitationEntries(data);
+      setDataLoading(false);
     });
 
     // Subscribe to invitation names
