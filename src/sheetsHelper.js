@@ -37,8 +37,7 @@ export const syncContactToGoogleSheet = async (webhookUrl, contact) => {
     village: contact.village || "",
     address: contact.address || "",
     notes: contact.notes || "",
-    category: contact.category || "",
-    categories: contact.category || ""
+    categories: contact.categories || {}
   };
 
   try {
