@@ -383,38 +383,6 @@ export default function App() {
                   </div>
                 )}
 
-                {activeView === "form" && (
-                  <ContactForm
-                    villages={villages}
-                    onAddVillage={handleAddVillage}
-                    onSaveContact={handleSaveContact}
-                    editContact={editingContact}
-                    onCancelEdit={handleCancelEdit}
-                    onViewAll={() => {
-                      setActiveView("report");
-                      setActiveCategory("તમામ");
-                    }}
-                    onViewCategory={(category) => {
-                      setActiveView("report");
-                      setActiveCategory(category);
-                    }}
-                  />
-                )}
-
-                {activeView === "report" && (
-                  <div style={{ padding: '0 24px', maxWidth: '1400px', margin: '0 auto' }}>
-                    <ReportTable
-                      contacts={contacts}
-                      onEditContact={handleEditTrigger}
-                      onDeleteContact={handleDeleteContact}
-                      onAddDataView={() => setActiveView("form")}
-                      activeCategory={activeCategory}
-                      setActiveCategory={setActiveCategory}
-                      googleSheetsViewUrl={googleSheetsViewUrl}
-                    />
-                  </div>
-                )}
-
                 {activeView === "villageManagement" && (
                   <div style={{ padding: '0 24px' }}>
                     <VillageManagement
