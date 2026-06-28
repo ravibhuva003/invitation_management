@@ -36,38 +36,7 @@ export default function Settings({ onUpdateCreds, showToast, entries, cities }) 
     setSheetWebhook(localStorage.getItem("crm_sheets_webhook") || "");
     setSheetViewLink(localStorage.getItem("crm_sheets_view_link") || "");
 
-    // Load admin username
-    const fetchCreds = async () => {
-      const creds = await dbOperations.getAdminCredentials();
-      setAdminUsername(creds.username || "admin");
-    };
-    fetchCreds().catch(console.error);
   }, []);
-
-  // Update Credentials
-  const handleUpdateCreds = async (e) => {
-    e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      showToast("નવો પાસવર્ડ અને કન્ફર્મ પાસવર્ડ મેચ થતા નથી!", "error");
-      return;
-    }
-
-    try {
-      const currentCreds = await dbOperations.getAdminCredentials();
-      if (currentPassword !== currentCreds.password) {
-        showToast("વર્તમાન પાસવર્ડ ખોટો છે!", "error");
-        return;
-      }
-
-      await dbOperations.updateAdminCredentials(adminUsername, newPassword);
-      showToast("એડમિન ક્રેડેન્શિયલ્સ સફળતાપૂર્વક અપડેટ થયા!", "success");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-    } catch (err) {
-      showToast("અપડેટ કરવામાં ભૂલ આવી: " + err.message, "error");
-    }
-  };
 
   // Save Firebase settings
   const handleSaveFirebase = (e) => {
@@ -204,63 +173,6 @@ export default function Settings({ onUpdateCreds, showToast, entries, cities }) 
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      {/* 🔐 credentials Section */}
-      <div className="settings-section">
-        <h2>
-          <Key size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-          એડમિન લૉગિન અને પાસવર્ડ બદલો
-        </h2>
-        <form onSubmit={handleUpdateCreds}>
-          <div className="form-group">
-            <label className="form-label">યુઝરનેમ</label>
-            <input
-              type="text"
-              className="form-input"
-              value={adminUsername}
-              onChange={(e) => setAdminUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">વર્તમાન પાસવર્ડ</label>
-            <input
-              type="password"
-              className="form-input"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              required
-              placeholder="વર્તમાન પાસવર્ડ દાખલ કરો"
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">નવો પાસવર્ડ</label>
-            <input
-              type="password"
-              className="form-input"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-              placeholder="નવો પાસવર્ડ દાખલ કરો"
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">કન્ફર્મ નવો પાસવર્ડ</label>
-            <input
-              type="password"
-              className="form-input"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              placeholder="નવો પાસવર્ડ ફરી દાખલ કરો"
-            />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
-            <button type="submit" className="btn btn-primary">
-              <Save size={16} /> પાસવર્ડ અપડેટ કરો
-            </button>
-          </div>
-        </form>
-      </div>
 
       {/* ☁️ Google Sheets API Integration Webhook */}
       <div className="settings-section">

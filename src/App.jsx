@@ -278,7 +278,7 @@ export default function App() {
           <div className="header-bar">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Database size={20} />
-              <h1 className="header-title" style={{ cursor: 'pointer' }} onClick={() => { setActiveView("dashboard"); setEditingContact(null); setHeaderTitle("આમંત્રણ વ્યવસ્થા"); }}>
+              <h1 className="header-title" style={{ cursor: 'pointer' }} onClick={() => { setActiveView("dashboard"); setHeaderTitle("આમંત્રણ વ્યવસ્થા"); }}>
                 {headerTitle}
               </h1>
             </div>
@@ -298,7 +298,7 @@ export default function App() {
               <button 
                 className={`btn ${activeView === "dashboard" ? "btn-success" : "btn-outline"}`}
                 style={{ color: activeView === "dashboard" ? "white" : "var(--header-text)", borderColor: 'rgba(255,255,255,0.3)' }}
-                onClick={() => { setActiveView("dashboard"); setEditingContact(null); }}
+                onClick={() => { setActiveView("dashboard"); }}
               >
                 <BarChart3 size={16} /> ડેશબોર્ડ
               </button>
@@ -306,7 +306,7 @@ export default function App() {
               <button 
                 className={`btn ${activeView === "invitationReport" ? "btn-success" : "btn-outline"}`}
                 style={{ color: activeView === "invitationReport" ? "white" : "var(--header-text)", borderColor: 'rgba(255,255,255,0.3)' }}
-                onClick={() => { setActiveView("invitationReport"); setEditingContact(null); }}
+                onClick={() => { setActiveView("invitationReport"); }}
               >
                 <List size={16} /> રિપોર્ટ જુઓ
               </button>
@@ -314,7 +314,7 @@ export default function App() {
               <button 
                 className={`btn ${activeView === "invitationForm" ? "btn-success" : "btn-outline"}`}
                 style={{ color: activeView === "invitationForm" ? "white" : "var(--header-text)", borderColor: 'rgba(255,255,255,0.3)' }}
-                onClick={() => { setActiveView("invitationForm"); setEditingContact(null); setHeaderTitle("આમંત્રણ વ્યવસ્થા"); }}
+                onClick={() => { setActiveView("invitationForm"); setHeaderTitle("આમંત્રણ વ્યવસ્થા"); }}
               >
                 <Plus size={16} /> નવું ઉમેરો
               </button>
