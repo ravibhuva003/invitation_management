@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Plus, Edit2, Trash2, Search, ArrowUpDown, MapPin } from "lucide-react";
 import { dbOperations } from "../firebase";
 
-export default function VillageManagement({ villages, contacts, currentAdmin, showToast }) {
+export default function VillageManagement({ villages, entries, currentAdmin, showToast }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState("villageName");
   const [sortDirection, setSortDirection] = useState("asc");
@@ -18,13 +18,15 @@ export default function VillageManagement({ villages, contacts, currentAdmin, sh
   // Village counts calculation
   const villageContactCounts = useMemo(() => {
     const counts = {};
-    contacts.forEach(c => {
-      if (c.village) {
-        counts[c.village] = (counts[c.village] || 0) + 1;
-      }
-    });
+    if (entries) {
+      entries.forEach(c => {
+        if (c.village) {
+          counts[c.village] = (counts[c.village] || 0) + 1;
+        }
+      });
+    }
     return counts;
-  }, [contacts]);
+  }, [entries]);
 
   // Filter and sort villages list
   const filteredVillages = useMemo(() => {
