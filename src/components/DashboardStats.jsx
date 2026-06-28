@@ -1,20 +1,20 @@
 import React from "react";
 import { Users, Calendar, MapPin, Grid, Radio } from "lucide-react";
 
-export default function DashboardStats({ contacts, cities, isFirebase }) {
+export default function DashboardStats({ entries, cities, isFirebase }) {
   // Total Contacts
-  const totalContacts = contacts.length;
+  const totalContacts = entries.length;
 
   // Today's Contacts
   const todayStr = new Date().toDateString();
-  const todaysContacts = contacts.filter(c => {
+  const todaysContacts = entries.filter(c => {
     if (!c.createdAt) return false;
     return new Date(c.createdAt).toDateString() === todayStr;
   }).length;
 
   // Village Wise Counts
   const villageCounts = {};
-  contacts.forEach(c => {
+  entries.forEach(c => {
     const v = c.village || "અજ્ઞાત";
     villageCounts[v] = (villageCounts[v] || 0) + 1;
   });
@@ -23,21 +23,12 @@ export default function DashboardStats({ contacts, cities, isFirebase }) {
 
   // Category Wise Counts
   const categoryCounts = {};
-  contacts.forEach(c => {
-    let cats = [];
-    if (Array.isArray(c.categories)) {
-      cats = c.categories;
-    } else if (typeof c.category === "string" && c.category.trim()) {
-      cats = c.category.split(",").map(x => x.trim()).filter(Boolean);
-    }
-    
-    if (cats.length === 0) {
-      cats = ["અન્ય"];
-    }
-    
-    cats.forEach(cat => {
-      categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
-    });
+  entries.forEach(c => {
+    let cats = c.categories || {};
+    if (cats.vyavahar?.enabled) categoryCounts["વ્યવહારવાળી યાદી"] = (categoryCounts["વ્યવહારવાળી યાદી"] || 0) + 1;
+    if (cats.two_person?.enabled) categoryCounts["બે વ્યક્તિ જોડે"] = (categoryCounts["બે વ્યક્તિ જોડે"] || 0) + 1;
+    if (cats.one_person?.enabled) categoryCounts["એક વ્યક્તિ"] = (categoryCounts["એક વ્યક્તિ"] || 0) + 1;
+    if (cats.digital?.enabled) categoryCounts["ડિજિટલ આમંત્રણ"] = (categoryCounts["ડિજિટલ આમંત્રણ"] || 0) + 1;
   });
   const sortedCategories = Object.entries(categoryCounts)
     .sort((a, b) => b[1] - a[1]);
@@ -51,7 +42,7 @@ export default function DashboardStats({ contacts, cities, isFirebase }) {
             <Users size={22} />
           </div>
           <div className="stat-details">
-            <h3>કુલ સંપર્કો</h3>
+            <h3>કુલ આમંત્રણ</h3>
             <p>{totalContacts}</p>
           </div>
         </div>
@@ -61,7 +52,7 @@ export default function DashboardStats({ contacts, cities, isFirebase }) {
             <Calendar size={22} />
           </div>
           <div className="stat-details">
-            <h3>આજના સંપર્કો</h3>
+            <h3>આજના આમંત્રણ</h3>
             <p>{todaysContacts}</p>
           </div>
         </div>

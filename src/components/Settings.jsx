@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Save, Key, Database, RefreshCw, FileText, Download } from "lucide-react";
 import { getSavedFirebaseConfig, saveFirebaseConfig, dbOperations } from "../firebase";
 
-export default function Settings({ onUpdateCreds, showToast, contacts, cities }) {
+export default function Settings({ onUpdateCreds, showToast, entries, cities }) {
   // Credentials change state
   const [adminUsername, setAdminUsername] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -146,8 +146,44 @@ export default function Settings({ onUpdateCreds, showToast, contacts, cities })
   // Backup data
   const handleBackupDownload = () => {
     try {
+      const formattedEntries = (entries || []).map(entry => {
+        const cats = entry.categories || {};
+        
+        const totalEvening = 
+          (Number(cats.vyavahar?.evening_29) || 0) + 
+          (Number(cats.two_person?.evening_29) || 0) + 
+          (Number(cats.one_person?.evening_29) || 0) + 
+          (Number(cats.digital?.evening_29) || 0);
+
+        const totalMorning = 
+          (Number(cats.vyavahar?.morning_30) || 0) + 
+          (Number(cats.two_person?.morning_30) || 0) + 
+          (Number(cats.one_person?.morning_30) || 0) + 
+          (Number(cats.digital?.morning_30) || 0);
+
+        const totalAfternoon = 
+          (Number(cats.vyavahar?.afternoon_30) || 0) + 
+          (Number(cats.two_person?.afternoon_30) || 0) + 
+          (Number(cats.one_person?.afternoon_30) || 0) + 
+          (Number(cats.digital?.afternoon_30) || 0);
+
+        return {
+          "નામ": entry.name || "",
+          "ગામ": entry.village || "",
+          "મોબાઈલ નંબર": entry.mobile || "",
+          "નોંધ": entry.notes || "",
+          "વ્યવહારવાળી યાદી": cats.vyavahar?.enabled ? "હા" : "ના",
+          "બે વ્યક્તિ જોડે": cats.two_person?.enabled ? "હા" : "ના",
+          "એક વ્યક્તિ": cats.one_person?.enabled ? "હા" : "ના",
+          "ડિજિટલ આમંત્રણ": cats.digital?.enabled ? "હા" : "ના",
+          "29/8 સાંજે": totalEvening || 0,
+          "30/8 સવારે": totalMorning || 0,
+          "30/8 બપોરે": totalAfternoon || 0
+        };
+      });
+
       const backupData = {
-        contacts,
+        invitations: formattedEntries,
         cities,
         exportDate: new Date().toISOString()
       };

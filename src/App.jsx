@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { dbOperations } from "./firebase";
-import { syncContactToGoogleSheet } from "./sheetsHelper";
 import Login from "./components/Login";
-import ContactForm from "./components/ContactForm";
-import ReportTable from "./components/ReportTable";
 import DashboardStats from "./components/DashboardStats";
 import Settings from "./components/Settings";
 import AdminManagement from "./components/AdminManagement";
@@ -43,8 +40,6 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState("તમામ");
   const [headerTitle, setHeaderTitle] = useState("આમંત્રણ વ્યવસ્થા");
 
-  // Database States (Managed via Real-Time Listeners)
-  const [contacts, setContacts] = useState([]);
   const [villages, setVillages] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
@@ -53,9 +48,6 @@ export default function App() {
   
   const [dataLoading, setDataLoading] = useState(false);
   const [isFirebase, setIsFirebase] = useState(false);
-
-  // Edit contact state
-  const [editingContact, setEditingContact] = useState(null);
 
   // Dark Mode State
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -96,12 +88,6 @@ export default function App() {
 
     setDataLoading(true);
 
-    // Subscribe to contacts
-    const unsubscribeContacts = dbOperations.subscribeContacts((data) => {
-      setContacts(data);
-      setDataLoading(false);
-    });
-
     // Subscribe to villages
     const unsubscribeVillages = dbOperations.subscribeVillages((data) => {
       setVillages(data);
@@ -128,7 +114,6 @@ export default function App() {
     });
 
     return () => {
-      unsubscribeContacts();
       unsubscribeVillages();
       unsubscribeAdmins();
       unsubscribeLogs();
@@ -198,43 +183,6 @@ export default function App() {
     return newVillage;
   };
 
-  // Handle Save Contact (Add or Update)
-  const handleSaveContact = async (contactData) => {
-    setDataLoading(true);
-    try {
-      if (editingContact) {
-        // Edit flow
-        const updated = await dbOperations.updateContact(editingContact.id, contactData);
-        await dbOperations.logActivity(currentAdmin.fullName, `સંપર્ક માહિતી સુધારી: ${contactData.name}`);
-        showToast("સંપર્ક સફળતાપૂર્વક સુધારાયો!", "success");
-        setEditingContact(null);
-        setActiveView("report"); // Redirect to table report view after edit
-      } else {
-        // Add flow
-        const added = await dbOperations.addContact(contactData);
-        await dbOperations.logActivity(currentAdmin.fullName, `નવો સંપર્ક ઉમેર્યો: ${added.name} (${added.category})`);
-        showToast("નવો સંપર્ક સફળતાપૂર્વક ઉમેરાયો!", "success");
-
-        // Sync with Google Sheet Webhook in real-time
-        const webhookUrl = localStorage.getItem("crm_sheets_webhook");
-        if (webhookUrl) {
-          showToast("Google Sheet માં ડેટા મોકલાઈ રહ્યો છે...", "success");
-          try {
-            await syncContactToGoogleSheet(webhookUrl, added);
-            showToast("Google Sheet માં ડેટા સફળતાપૂર્વક સિંક થયો!", "success");
-          } catch (sheetsErr) {
-            console.error("Sheets sync failed:", sheetsErr);
-            showToast("Firebase માં ડેટા સેવ થયો છે, પરંતુ Google Sheet Sync નિષ્ફળ ગયો.", "error");
-          }
-        }
-      }
-    } catch (err) {
-      showToast("સેવ કરવામાં ભૂલ આવી: " + err.message, "error");
-    } finally {
-      setDataLoading(false);
-    }
-  };
-
   // Handle Save Invitation
   const handleSaveInvitation = async (entryData, isNew, entryId) => {
     setDataLoading(true);
@@ -285,36 +233,6 @@ export default function App() {
     } finally {
       setDataLoading(false);
     }
-  };
-
-  // Handle Delete Contact
-  const handleDeleteContact = async (id) => {
-    setDataLoading(true);
-    try {
-      const contactToDelete = contacts.find(c => c.id === id);
-      const name = contactToDelete ? contactToDelete.name : "અજ્ઞાત";
-      const cat = contactToDelete ? contactToDelete.category : "";
-
-      await dbOperations.deleteContact(id);
-      await dbOperations.logActivity(currentAdmin.fullName, `સંપર્ક ડિલીટ કર્યો: ${name} (${cat})`);
-      showToast("સંપર્ક સફળતાપૂર્વક ડિલીટ કરાયો!", "success");
-    } catch (err) {
-      showToast("ડિલીટ કરવામાં ભૂલ આવી: " + err.message, "error");
-    } finally {
-      setDataLoading(false);
-    }
-  };
-
-  // Trigger editing contact from report page
-  const handleEditTrigger = (contact) => {
-    setEditingContact(contact);
-    setActiveView("form");
-  };
-
-  // Cancel edit
-  const handleCancelEdit = () => {
-    setEditingContact(null);
-    setActiveView("report");
   };
 
   const googleSheetsViewUrl = localStorage.getItem("crm_sheets_view_link") || "";
@@ -404,7 +322,7 @@ export default function App() {
               <button 
                 className={`btn ${activeView === "villageManagement" ? "btn-success" : "btn-outline"}`}
                 style={{ color: activeView === "villageManagement" ? "white" : "var(--header-text)", borderColor: 'rgba(255,255,255,0.3)' }}
-                onClick={() => { setActiveView("villageManagement"); setEditingContact(null); }}
+                onClick={() => { setActiveView("villageManagement"); setHeaderTitle("ગામ વ્યવસ્થાપન"); }}
               >
                 <MapPin size={16} /> ગામ
               </button>
@@ -415,7 +333,7 @@ export default function App() {
                 <button 
                   className={`btn ${activeView === "adminManagement" ? "btn-success" : "btn-outline"}`}
                   style={{ color: activeView === "adminManagement" ? "white" : "var(--header-text)", borderColor: 'rgba(255,255,255,0.3)' }}
-                  onClick={() => { setActiveView("adminManagement"); setEditingContact(null); }}
+                  onClick={() => { setActiveView("adminManagement"); setHeaderTitle("એડમિન વ્યવસ્થાપન"); }}
                 >
                   <Users size={16} /> એડમિન
                 </button>
@@ -425,7 +343,7 @@ export default function App() {
               <button 
                 className={`btn ${activeView === "activityLog" ? "btn-success" : "btn-outline"}`}
                 style={{ color: activeView === "activityLog" ? "white" : "var(--header-text)", borderColor: 'rgba(255,255,255,0.3)' }}
-                onClick={() => { setActiveView("activityLog"); setEditingContact(null); }}
+                onClick={() => { setActiveView("activityLog"); setHeaderTitle("એક્ટિવિટી લોગ"); }}
               >
                 <History size={16} /> લૉગ
               </button>
@@ -433,7 +351,7 @@ export default function App() {
               <button 
                 className={`btn ${activeView === "settings" ? "btn-success" : "btn-outline"}`}
                 style={{ color: activeView === "settings" ? "white" : "var(--header-text)", borderColor: 'rgba(255,255,255,0.3)' }}
-                onClick={() => { setActiveView("settings"); setEditingContact(null); }}
+                onClick={() => { setActiveView("settings"); setHeaderTitle("સેટિંગ્સ"); }}
               >
                 <SettingsIcon size={16} /> સેટિંગ્સ
               </button>
@@ -450,16 +368,16 @@ export default function App() {
           </div>
 
           <div className="main-content-area" style={{ paddingTop: '12px' }}>
-            {dataLoading && contacts.length === 0 ? (
+            {dataLoading && invitationEntries.length === 0 ? (
               renderLoading()
             ) : (
               <>
                 {activeView === "dashboard" && (
-                  <div style={{ padding: '0 24px', maxWidth: '1400px', margin: '0 auto' }}>
+                  <div style={{ padding: '0 24px' }}>
                     <DashboardStats 
-                      contacts={contacts} 
+                      entries={invitationEntries} 
                       cities={villages} 
-                      isFirebase={isFirebase} 
+                      isFirebase={isFirebase}
                     />
                   </div>
                 )}
@@ -500,7 +418,7 @@ export default function App() {
                   <div style={{ padding: '0 24px' }}>
                     <VillageManagement
                       villages={villages}
-                      contacts={contacts}
+                      entries={invitationEntries}
                       currentAdmin={currentAdmin}
                       showToast={showToast}
                     />
@@ -544,7 +462,7 @@ export default function App() {
                   <div style={{ padding: '0 24px' }}>
                     <Settings
                       showToast={showToast}
-                      contacts={contacts}
+                      entries={invitationEntries}
                       cities={villages}
                     />
                   </div>
