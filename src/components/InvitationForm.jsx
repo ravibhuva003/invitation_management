@@ -102,13 +102,23 @@ export default function InvitationForm({
   const handleNameKeyDown = (e) => {
     if (!showSuggestions || filteredNames.length === 0) return;
     
-    if (e.key === "ArrowDown") {
+    if (e.code === "ArrowDown" || e.key === "ArrowDown" || e.keyCode === 40) {
       e.preventDefault();
-      setActiveSuggestionIndex(prev => Math.min(prev + 1, filteredNames.length - 1));
-    } else if (e.key === "ArrowUp") {
+      setActiveSuggestionIndex(prev => {
+        const next = Math.min(prev + 1, filteredNames.length - 1);
+        const el = document.getElementById(`suggestion-${next}`);
+        if (el) el.scrollIntoView({ block: 'nearest' });
+        return next;
+      });
+    } else if (e.code === "ArrowUp" || e.key === "ArrowUp" || e.keyCode === 38) {
       e.preventDefault();
-      setActiveSuggestionIndex(prev => Math.max(prev - 1, 0));
-    } else if (e.key === "Enter") {
+      setActiveSuggestionIndex(prev => {
+        const next = Math.max(prev - 1, 0);
+        const el = document.getElementById(`suggestion-${next}`);
+        if (el) el.scrollIntoView({ block: 'nearest' });
+        return next;
+      });
+    } else if (e.code === "Enter" || e.key === "Enter" || e.keyCode === 13) {
       e.preventDefault();
       if (filteredNames[activeSuggestionIndex]) {
         handleSelectName(filteredNames[activeSuggestionIndex].name);
@@ -116,9 +126,10 @@ export default function InvitationForm({
     }
   };
 
-  const handleEnterKey = (e) => {
-    if (e.key === "Enter" || e.key === "Tab") {
+  const handleTabCapture = (e) => {
+    if (e.code === "Enter" || e.key === "Enter" || e.keyCode === 13 || e.code === "Tab" || e.key === "Tab" || e.keyCode === 9) {
       e.preventDefault();
+      e.stopPropagation();
       const form = e.target.form;
       if (!form) return;
       const focusableElements = Array.from(form.elements).filter(el => 
@@ -126,7 +137,7 @@ export default function InvitationForm({
         (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.tagName === 'BUTTON')
       );
       const index = focusableElements.indexOf(e.target);
-      const step = (e.key === "Tab" && e.shiftKey) ? -1 : 1;
+      const step = e.shiftKey ? -1 : 1;
       
       if (index > -1 && index + step >= 0 && index + step < focusableElements.length) {
         focusableElements[index + step].focus();
@@ -235,7 +246,7 @@ export default function InvitationForm({
               style={{ width: '90px', padding: '8px', fontSize: '15px' }}
               value={categories[catKey].evening_29}
               onChange={(e) => handleCategoryNumberChange(catKey, 'evening_29', e.target.value)}
-              onKeyDown={handleEnterKey}
+              onKeyDownCapture={handleTabCapture}
               min="0"
             />
           )}
@@ -249,7 +260,7 @@ export default function InvitationForm({
               style={{ width: '90px', padding: '8px', fontSize: '15px' }}
               value={categories[catKey].morning_30}
               onChange={(e) => handleCategoryNumberChange(catKey, 'morning_30', e.target.value)}
-              onKeyDown={handleEnterKey}
+              onKeyDownCapture={handleTabCapture}
               min="0"
             />
           )}
@@ -263,7 +274,7 @@ export default function InvitationForm({
               style={{ width: '90px', padding: '8px', fontSize: '15px' }}
               value={categories[catKey].afternoon_30}
               onChange={(e) => handleCategoryNumberChange(catKey, 'afternoon_30', e.target.value)}
-              onKeyDown={handleEnterKey}
+              onKeyDownCapture={handleTabCapture}
               min="0"
             />
           )}
@@ -286,7 +297,7 @@ export default function InvitationForm({
                 placeholder="નામ દાખલ કરો" 
                 value={name}
                 onChange={handleNameChange}
-                onKeyDown={handleNameKeyDown}
+                onKeyDownCapture={handleNameKeyDown}
                 onFocus={() => { if(name) setShowSuggestions(true); }}
                 style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
                 autoFocus
@@ -306,6 +317,7 @@ export default function InvitationForm({
                   {filteredNames.map((item, idx) => (
                     <div 
                       key={item.id || idx}
+                      id={`suggestion-${idx}`}
                       style={{ 
                         padding: '10px 14px', 
                         cursor: 'pointer', 
