@@ -120,6 +120,16 @@ export default function InvitationReport({
     XLSX.writeFile(workbook, "Invitations_Report.xlsx");
   };
 
+  const getPrintTitle = () => {
+    switch (filterCategory) {
+      case "vyavahar": return "વ્યવહારવાળી યાદી";
+      case "two_person": return "બે વ્યક્તિ જોડે યાદી";
+      case "one_person": return "એક વ્યક્તિ યાદી";
+      case "digital": return "ડિજિટલ આમંત્રણ યાદી";
+      default: return "તમામ આમંત્રણ રિપોર્ટ";
+    }
+  };
+
   return (
     <div className="report-view-container" style={{ width: '100%' }}>
       
@@ -199,6 +209,9 @@ export default function InvitationReport({
         </div>
       </div>
 
+      <div className="print-header">
+        <h1>{getPrintTitle()}</h1>
+      </div>
       <div className="table-container">
         <table className="data-table">
           <thead>
