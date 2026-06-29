@@ -111,10 +111,10 @@ export default function InvitationReport({
   };
 
   const SortIcon = ({ field }) => {
-    if (sortBy !== field) return <ChevronsUpDown size={14} style={{ opacity: 0.3, marginLeft: '4px', verticalAlign: 'middle' }} />;
+    if (sortBy !== field) return <span className="hide-on-print"><ChevronsUpDown size={14} style={{ opacity: 0.3, marginLeft: '4px', verticalAlign: 'middle' }} /></span>;
     return sortOrder === "asc" 
-      ? <ArrowUp size={14} style={{ marginLeft: '4px', color: 'var(--primary)', verticalAlign: 'middle' }} /> 
-      : <ArrowDown size={14} style={{ marginLeft: '4px', color: 'var(--primary)', verticalAlign: 'middle' }} />;
+      ? <span className="hide-on-print"><ArrowUp size={14} style={{ marginLeft: '4px', color: 'var(--primary)', verticalAlign: 'middle' }} /></span> 
+      : <span className="hide-on-print"><ArrowDown size={14} style={{ marginLeft: '4px', color: 'var(--primary)', verticalAlign: 'middle' }} /></span>;
   };
 
   const totalPages = Math.ceil(filteredEntries.length / itemsPerPage);
