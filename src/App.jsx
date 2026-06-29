@@ -41,6 +41,7 @@ export default function App() {
   const [headerTitle, setHeaderTitle] = useState("આમંત્રણ વ્યવસ્થા");
 
   const [villages, setVillages] = useState([]);
+  const [addresses, setAddresses] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
   const [invitationEntries, setInvitationEntries] = useState([]);
@@ -93,6 +94,11 @@ export default function App() {
       setVillages(data);
     });
 
+    // Subscribe to addresses
+    const unsubscribeAddresses = dbOperations.subscribeAddresses((data) => {
+      setAddresses(data);
+    });
+
     // Subscribe to admins
     const unsubscribeAdmins = dbOperations.subscribeAdmins((data) => {
       setAdmins(data);
@@ -116,6 +122,7 @@ export default function App() {
 
     return () => {
       unsubscribeVillages();
+      unsubscribeAddresses();
       unsubscribeAdmins();
       unsubscribeLogs();
       unsubscribeInvitations();
@@ -231,6 +238,16 @@ export default function App() {
     }
     const newVillage = await dbOperations.addVillage(villageName);
     return newVillage;
+  };
+
+  // Handle Add Address (passed to ContactForm inline popups)
+  const handleAddAddress = async (addressName) => {
+    const exists = addresses.some(a => a.addressName.toLowerCase() === addressName.toLowerCase());
+    if (exists) {
+      throw new Error("આ સરનામું પહેલેથી જ લિસ્ટમાં છે!");
+    }
+    const newAddress = await dbOperations.addAddress(addressName);
+    return newAddress;
   };
 
   // Handle Save Invitation
@@ -450,8 +467,10 @@ export default function App() {
                     setHeaderTitle={setHeaderTitle}
                     entries={invitationEntries}
                     villages={villages}
+                    addresses={addresses}
                     invitationNames={invitationNames}
                     onAddVillage={handleAddVillage}
+                    onAddAddress={handleAddAddress}
                     onSaveInvitation={handleSaveInvitation}
                     onDeleteEntry={handleDeleteInvitation}
                     googleSheetsViewUrl={googleSheetsViewUrl}

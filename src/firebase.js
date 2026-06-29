@@ -78,6 +78,7 @@ const setLocalData = (key, data) => {
 const localListeners = {
   contacts: [],
   villages: [],
+  addresses: [],
   admins: [],
   activityLogs: [],
   invitationEntries: [],
@@ -91,6 +92,8 @@ if (typeof window !== "undefined") {
     localListeners.contacts.forEach(cb => cb(getLocalData("crm_local_contacts")));
     // Notify villages
     localListeners.villages.forEach(cb => cb(getLocalData("crm_local_villages")));
+    // Notify addresses
+    localListeners.addresses.forEach(cb => cb(getLocalData("crm_local_addresses")));
     // Notify admins
     localListeners.admins.forEach(cb => cb(getLocalData("crm_local_admins")));
     // Notify logs
@@ -215,6 +218,70 @@ export const dbOperations = {
     dbOperations.getVillages().then(onUpdate);
     return () => {
       localListeners.villages = localListeners.villages.filter(cb => cb !== onUpdate);
+    };
+  },
+
+  // --- ADDRESSES ---
+  getAddresses: async () => {
+    if (isFirebaseConnected && db) {
+      try {
+        const querySnapshot = await getDocs(collection(db, "addresses"));
+        const addressesList = [];
+        querySnapshot.forEach((doc) => {
+          addressesList.push({ id: doc.id, ...doc.data() });
+        });
+        return addressesList.sort((a, b) => (a.addressName || "").localeCompare(b.addressName || "", 'gu'));
+      } catch (err) {
+        console.error("Firestore getAddresses error, falling back to local:", err);
+      }
+    }
+    // Fallback
+    const localAddresses = getLocalData("crm_local_addresses", []);
+    return localAddresses.sort((a, b) => (a.addressName || "").localeCompare(b.addressName || "", 'gu'));
+  },
+
+  addAddress: async (addressName) => {
+    const newAddress = {
+      addressName: addressName,
+      createdAt: new Date().toISOString()
+    };
+
+    if (isFirebaseConnected && db) {
+      try {
+        const docRef = await addDoc(collection(db, "addresses"), newAddress);
+        return { id: docRef.id, ...newAddress };
+      } catch (err) {
+        console.error("Firestore addAddress error:", err);
+      }
+    }
+
+    const localAddresses = getLocalData("crm_local_addresses", []);
+    const address = { id: Date.now().toString(), ...newAddress };
+    localAddresses.push(address);
+    setLocalData("crm_local_addresses", localAddresses);
+    return address;
+  },
+
+  subscribeAddresses: (onUpdate) => {
+    if (isFirebaseConnected && db) {
+      const q = query(collection(db, "addresses"));
+      return onSnapshot(q, (snapshot) => {
+        const addressesList = [];
+        snapshot.forEach((doc) => {
+          addressesList.push({ id: doc.id, ...doc.data() });
+        });
+        addressesList.sort((a, b) => (a.addressName || "").localeCompare(b.addressName || "", 'gu'));
+        onUpdate(addressesList);
+      }, (err) => {
+        console.error("subscribeAddresses error:", err);
+      });
+    }
+
+    // Local subscription
+    localListeners.addresses.push(onUpdate);
+    dbOperations.getAddresses().then(onUpdate);
+    return () => {
+      localListeners.addresses = localListeners.addresses.filter(cb => cb !== onUpdate);
     };
   },
 

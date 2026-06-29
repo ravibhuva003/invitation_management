@@ -10,9 +10,13 @@ export default function InvitationForm({
   editEntry,
   onCancelEdit,
   invitationNames = [],
+  addresses = [],
+  onAddAddress,
   onViewData
 }) {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [middleName, setMiddleName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [village, setVillage] = useState("");
   const [address, setAddress] = useState("");
   const [mobile, setMobile] = useState("");
@@ -30,6 +34,7 @@ export default function InvitationForm({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredNames, setFilteredNames] = useState([]);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
+  const [activeSuggestionField, setActiveSuggestionField] = useState(null);
   const wrapperRef = useRef(null);
 
   // Village Modal state
@@ -37,9 +42,28 @@ export default function InvitationForm({
   const [newCityName, setNewCityName] = useState("");
   const [citySubmitting, setCitySubmitting] = useState(false);
 
+  // Address Modal state
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [newAddressName, setNewAddressName] = useState("");
+  const [addressSubmitting, setAddressSubmitting] = useState(false);
+
   useEffect(() => {
     if (editEntry) {
-      setName(editEntry.name || "");
+      if (editEntry.name) {
+        const parts = editEntry.name.split(' ');
+        setFirstName(parts[0] || "");
+        if (parts.length > 2) {
+          setMiddleName(parts[1] || "");
+          setLastName(parts.slice(2).join(' ') || "");
+        } else {
+          setMiddleName(parts[1] || "");
+          setLastName("");
+        }
+      } else {
+        setFirstName("");
+        setMiddleName("");
+        setLastName("");
+      }
       setVillage(editEntry.village || "");
       setAddress(editEntry.address || "");
       setMobile(editEntry.mobile || "");
@@ -65,7 +89,9 @@ export default function InvitationForm({
   }, []);
 
   const clearForm = () => {
-    setName("");
+    setFirstName("");
+    setMiddleName("");
+    setLastName("");
     setVillage("");
     setAddress("");
     setMobile("");
@@ -79,23 +105,48 @@ export default function InvitationForm({
     });
   };
 
-  const handleNameChange = (e) => {
+  const handleNameChange = (e, field) => {
     const val = e.target.value;
-    setName(val);
+    if (field === 'first') setFirstName(val);
+    else if (field === 'middle') setMiddleName(val);
+    else if (field === 'last') setLastName(val);
+
     if (val.trim()) {
-      const filtered = invitationNames.filter(n => 
-        isPhoneticMatch(n.name, val)
-      );
+      let sourceList = [];
+      if (field === 'first') {
+        sourceList = [...new Set(entries.map(e => (e.name || "").split(' ')[0]).filter(Boolean))];
+      } else if (field === 'middle') {
+        sourceList = [...new Set(entries.map(e => (e.name || "").split(' ')[1]).filter(Boolean))];
+      } else if (field === 'last') {
+        sourceList = [...new Set(entries.map(e => {
+            const p = (e.name || "").split(' ');
+            return p.length > 2 ? p.slice(2).join(' ') : (p.length === 2 && field === 'last' && !p[1].endsWith('ભાઈ') ? p[1] : "");
+        }).filter(Boolean))];
+        // Note: For 'last', a more robust logic would be checking actual existing last names. 
+        // Using existing invitationNames list combined with entry extracted parts to be safe:
+        const allParts = entries.reduce((acc, e) => {
+          const parts = (e.name || "").split(' ');
+          if (parts.length > 2) acc.push(parts.slice(2).join(' '));
+          return acc;
+        }, []);
+        if(field === 'last') sourceList = [...new Set(allParts.filter(Boolean))];
+      }
+      
+      const filtered = sourceList.filter(n => isPhoneticMatch(n, val)).slice(0, 15);
       setFilteredNames(filtered);
       setActiveSuggestionIndex(0);
       setShowSuggestions(true);
+      setActiveSuggestionField(field);
     } else {
       setShowSuggestions(false);
     }
   };
 
   const handleSelectName = (selectedName) => {
-    setName(selectedName);
+    if (activeSuggestionField === 'first') setFirstName(selectedName);
+    else if (activeSuggestionField === 'middle') setMiddleName(selectedName);
+    else if (activeSuggestionField === 'last') setLastName(selectedName);
+    
     setShowSuggestions(false);
     setActiveSuggestionIndex(0);
   };
@@ -122,7 +173,7 @@ export default function InvitationForm({
     } else if (e.code === "Enter" || e.key === "Enter" || e.keyCode === 13) {
       e.preventDefault();
       if (filteredNames[activeSuggestionIndex]) {
-        handleSelectName(filteredNames[activeSuggestionIndex].name);
+        handleSelectName(filteredNames[activeSuggestionIndex]);
       }
     }
   };
@@ -174,7 +225,9 @@ export default function InvitationForm({
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    if (!name.trim()) {
+    const combinedName = [firstName.trim(), middleName.trim(), lastName.trim()].filter(Boolean).join(' ');
+    
+    if (!combinedName) {
       alert("કૃપા કરીને નામ દાખલ કરો!");
       return;
     }
@@ -205,7 +258,7 @@ export default function InvitationForm({
     }
 
     const entryData = {
-      name: name.trim(),
+      name: combinedName,
       village,
       address: address.trim(),
       mobile: mobile.trim(),
@@ -234,6 +287,23 @@ export default function InvitationForm({
       alert("ગામ ઉમેરવામાં ભૂલ આવી: " + err.message);
     } finally {
       setCitySubmitting(false);
+    }
+  };
+
+  const handleAddAddressSubmit = async (e) => {
+    e.preventDefault();
+    if (!newAddressName.trim()) return;
+
+    setAddressSubmitting(true);
+    try {
+      const addedAddress = await onAddAddress(newAddressName.trim());
+      setAddress(addedAddress.addressName);
+      setNewAddressName("");
+      setIsAddressModalOpen(false);
+    } catch (err) {
+      alert("સરનામું ઉમેરવામાં ભૂલ આવી: " + err.message);
+    } finally {
+      setAddressSubmitting(false);
     }
   };
 
@@ -298,22 +368,22 @@ export default function InvitationForm({
       <div className="form-card" style={{ padding: '24px 32px', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
         <form onSubmit={handleFormSubmit} onKeyDownCapture={handleFormKeyDown} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div className="form-grid-3" style={{ marginBottom: '24px' }}>
+          <div className="form-grid-5" style={{ marginBottom: '16px' }}>
             <div className="form-group" style={{ position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '2px' }} ref={wrapperRef}>
               <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>નામ *</label>
               <input 
                 type="text" 
                 className="form-input" 
-                placeholder="નામ દાખલ કરો" 
-                value={name}
-                onChange={handleNameChange}
+                placeholder="નામ" 
+                value={firstName}
+                onChange={(e) => handleNameChange(e, 'first')}
                 onKeyDownCapture={handleNameKeyDown}
-                onFocus={() => { if(name) setShowSuggestions(true); }}
+                onFocus={() => { if(firstName) setShowSuggestions(true); setActiveSuggestionField('first'); }}
                 style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
                 autoFocus
                 required
               />
-              {showSuggestions && filteredNames.length > 0 && (
+              {showSuggestions && activeSuggestionField === 'first' && filteredNames.length > 0 && (
                 <div style={{
                   position: 'absolute', top: '100%', left: '0', right: 0, 
                   backgroundColor: 'var(--bg-card)', 
@@ -326,7 +396,7 @@ export default function InvitationForm({
                 }}>
                   {filteredNames.map((item, idx) => (
                     <div 
-                      key={item.id || idx}
+                      key={idx}
                       id={`suggestion-${idx}`}
                       style={{ 
                         padding: '10px 14px', 
@@ -337,10 +407,102 @@ export default function InvitationForm({
                         color: idx === activeSuggestionIndex ? 'var(--primary)' : 'var(--text-main)',
                         fontWeight: idx === activeSuggestionIndex ? '600' : '400'
                       }}
-                      onClick={() => handleSelectName(item.name)}
+                      onClick={() => handleSelectName(item)}
                       onMouseEnter={() => setActiveSuggestionIndex(idx)}
                     >
-                      {item.name}
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="form-group" style={{ position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '2px' }}>
+              <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>પિતાનું નામ</label>
+              <input 
+                type="text" 
+                className="form-input" 
+                placeholder="પિતાનું નામ" 
+                value={middleName}
+                onChange={(e) => handleNameChange(e, 'middle')}
+                onKeyDownCapture={handleNameKeyDown}
+                onFocus={() => { if(middleName) setShowSuggestions(true); setActiveSuggestionField('middle'); }}
+                style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
+              />
+              {showSuggestions && activeSuggestionField === 'middle' && filteredNames.length > 0 && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: '0', right: 0, 
+                  backgroundColor: 'var(--bg-card)', 
+                  border: '1px solid var(--border-color)', 
+                  borderRadius: '4px',
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  zIndex: 10,
+                  boxShadow: 'var(--shadow-card)'
+                }}>
+                  {filteredNames.map((item, idx) => (
+                    <div 
+                      key={idx}
+                      id={`suggestion-${idx}`}
+                      style={{ 
+                        padding: '10px 14px', 
+                        cursor: 'pointer', 
+                        borderBottom: '1px solid var(--border-color)', 
+                        fontSize: '14px',
+                        backgroundColor: idx === activeSuggestionIndex ? 'rgba(138, 28, 20, 0.1)' : 'transparent',
+                        color: idx === activeSuggestionIndex ? 'var(--primary)' : 'var(--text-main)',
+                        fontWeight: idx === activeSuggestionIndex ? '600' : '400'
+                      }}
+                      onClick={() => handleSelectName(item)}
+                      onMouseEnter={() => setActiveSuggestionIndex(idx)}
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="form-group" style={{ position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '2px' }}>
+              <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>અટક</label>
+              <input 
+                type="text" 
+                className="form-input" 
+                placeholder="અટક" 
+                value={lastName}
+                onChange={(e) => handleNameChange(e, 'last')}
+                onKeyDownCapture={handleNameKeyDown}
+                onFocus={() => { if(lastName) setShowSuggestions(true); setActiveSuggestionField('last'); }}
+                style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
+              />
+              {showSuggestions && activeSuggestionField === 'last' && filteredNames.length > 0 && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: '0', right: 0, 
+                  backgroundColor: 'var(--bg-card)', 
+                  border: '1px solid var(--border-color)', 
+                  borderRadius: '4px',
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  zIndex: 10,
+                  boxShadow: 'var(--shadow-card)'
+                }}>
+                  {filteredNames.map((item, idx) => (
+                    <div 
+                      key={idx}
+                      id={`suggestion-${idx}`}
+                      style={{ 
+                        padding: '10px 14px', 
+                        cursor: 'pointer', 
+                        borderBottom: '1px solid var(--border-color)', 
+                        fontSize: '14px',
+                        backgroundColor: idx === activeSuggestionIndex ? 'rgba(138, 28, 20, 0.1)' : 'transparent',
+                        color: idx === activeSuggestionIndex ? 'var(--primary)' : 'var(--text-main)',
+                        fontWeight: idx === activeSuggestionIndex ? '600' : '400'
+                      }}
+                      onClick={() => handleSelectName(item)}
+                      onMouseEnter={() => setActiveSuggestionIndex(idx)}
+                    >
+                      {item}
                     </div>
                   ))}
                 </div>
@@ -377,14 +539,30 @@ export default function InvitationForm({
 
             <div className="form-group" style={{ marginBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '2px' }}>
               <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>સરનામું (Address)</label>
-              <input 
-                type="text" 
-                className="form-input" 
-                placeholder="સરનામું (Optional)" 
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
-              />
+              <div className="village-select-container">
+                <select 
+                  className="form-input" 
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
+                >
+                  <option value="">સરનામું પસંદ કરો</option>
+                  {addresses?.map((a) => (
+                    <option key={a.id} value={a.addressName}>
+                      {a.addressName}
+                    </option>
+                  ))}
+                </select>
+                <button 
+                  type="button" 
+                  className="btn btn-primary"
+                  style={{ padding: '0 18px', height: '52px', fontSize: '15px' }}
+                  onClick={() => setIsAddressModalOpen(true)}
+                  tabIndex="-1"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -522,6 +700,54 @@ export default function InvitationForm({
                   disabled={citySubmitting}
                 >
                   {citySubmitting ? "ઉમેરાઈ રહ્યું છે..." : "ગામ સેવ કરો"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isAddressModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">નવું સરનામું ઉમેરો</h3>
+              <button 
+                type="button" 
+                style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'var(--text-muted)' }}
+                onClick={() => setIsAddressModalOpen(false)}
+              >
+                &times;
+              </button>
+            </div>
+            <form onSubmit={handleAddAddressSubmit}>
+              <div className="modal-body">
+                <label className="form-label" style={{ display: 'block', marginBottom: '8px' }}>સરનામું</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="સરનામું દાખલ કરો"
+                  value={newAddressName}
+                  onChange={(e) => setNewAddressName(e.target.value)}
+                  autoFocus
+                  required
+                />
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-outline" 
+                  onClick={() => setIsAddressModalOpen(false)}
+                  disabled={addressSubmitting}
+                >
+                  બંધ કરો
+                </button>
+                <button 
+                  type="submit" 
+                  className="btn btn-primary"
+                  disabled={addressSubmitting}
+                >
+                  {addressSubmitting ? "ઉમેરાઈ રહ્યું છે..." : "સરનામું સેવ કરો"}
                 </button>
               </div>
             </form>

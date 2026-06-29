@@ -297,6 +297,12 @@ body {
   gap: 24px;
 }
 
+.form-grid-5 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 16px;
+}
+
 .grid-cols-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -304,7 +310,7 @@ body {
 }
 
 @media (max-width: 768px) {
-  .form-grid-3 {
+  .form-grid-3, .form-grid-5 {
     grid-template-columns: 1fr;
     gap: 16px;
   }

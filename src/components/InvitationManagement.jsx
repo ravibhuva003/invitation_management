@@ -9,8 +9,10 @@ export default function InvitationManagement({
   setHeaderTitle,
   entries,
   villages,
+  addresses,
   invitationNames,
   onAddVillage,
+  onAddAddress,
   onSaveInvitation,
   onDeleteEntry,
   googleSheetsViewUrl
@@ -41,7 +43,9 @@ export default function InvitationManagement({
         <InvitationForm 
           entries={entries}
           villages={villages}
+          addresses={addresses}
           onAddVillage={onAddVillage}
+          onAddAddress={onAddAddress}
           onSaveInvitation={handleSaveWrapper}
           editEntry={editingEntry}
           onCancelEdit={handleCancelEdit}
