@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Plus, Users } from "lucide-react";
+import { isPhoneticMatch } from "../utils/phoneticSearch";
 
 export default function InvitationForm({
   entries = [],
@@ -83,7 +84,7 @@ export default function InvitationForm({
     setName(val);
     if (val.trim()) {
       const filtered = invitationNames.filter(n => 
-        (n.name || "").toLowerCase().includes(val.toLowerCase())
+        isPhoneticMatch(n.name, val)
       );
       setFilteredNames(filtered);
       setActiveSuggestionIndex(0);

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Search, Edit, Trash2, ChevronLeft, ChevronRight, Download, Printer, ArrowUp, ArrowDown, ChevronsUpDown } from "lucide-react";
 import * as XLSX from "xlsx";
+import { isPhoneticMatch } from "../utils/phoneticSearch";
 
 export default function InvitationReport({ 
   entries, 
@@ -63,11 +64,11 @@ export default function InvitationReport({
     }
 
     if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
       result = result.filter((entry) => {
-        const nameMatch = (entry.name || "").toLowerCase().includes(searchLower);
-        const villageMatch = (entry.village || "").toLowerCase().includes(searchLower);
-        const mobileMatch = (entry.mobile || "").toLowerCase().includes(searchLower);
+        const nameMatch = isPhoneticMatch(entry.name, searchTerm);
+        const villageMatch = isPhoneticMatch(entry.village, searchTerm);
+        const mobileMatch = isPhoneticMatch(entry.mobile, searchTerm);
+        
         return nameMatch || villageMatch || mobileMatch;
       });
     }
