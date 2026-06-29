@@ -127,10 +127,11 @@ export default function App() {
   useEffect(() => {
     if (!isAuthenticated || invitationEntries.length === 0) return;
 
-    const todayStr = new Date().toDateString();
-    const lastBackupDate = localStorage.getItem("last_auto_backup_date");
+    const now = Date.now();
+    const lastBackupTime = parseInt(localStorage.getItem("last_auto_backup_timestamp") || "0", 10);
+    const twelveHoursInMs = 12 * 60 * 60 * 1000;
 
-    if (lastBackupDate !== todayStr) {
+    if (now - lastBackupTime >= twelveHoursInMs) {
       const backupData = {
         invitations: invitationEntries,
         cities: villages,
@@ -166,8 +167,8 @@ export default function App() {
         });
       }
 
-      localStorage.setItem("last_auto_backup_date", todayStr);
-      console.log("Auto Backup generated for today:", todayStr);
+      localStorage.setItem("last_auto_backup_timestamp", now.toString());
+      console.log("Auto Backup generated at timestamp:", now);
     }
   }, [isAuthenticated, invitationEntries, villages]);
 
