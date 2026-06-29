@@ -100,18 +100,14 @@ export default function InvitationForm({
   };
 
   const handleNameKeyDown = (e) => {
-    if (!showSuggestions) return;
+    if (!showSuggestions || filteredNames.length === 0) return;
     
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      if (activeSuggestionIndex < filteredNames.length - 1) {
-        setActiveSuggestionIndex(activeSuggestionIndex + 1);
-      }
+      setActiveSuggestionIndex(prev => Math.min(prev + 1, filteredNames.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      if (activeSuggestionIndex > 0) {
-        setActiveSuggestionIndex(activeSuggestionIndex - 1);
-      }
+      setActiveSuggestionIndex(prev => Math.max(prev - 1, 0));
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (filteredNames[activeSuggestionIndex]) {
@@ -121,7 +117,7 @@ export default function InvitationForm({
   };
 
   const handleEnterKey = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault();
       const form = e.target.form;
       if (!form) return;
@@ -130,8 +126,10 @@ export default function InvitationForm({
         (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.tagName === 'BUTTON')
       );
       const index = focusableElements.indexOf(e.target);
-      if (index > -1 && index + 1 < focusableElements.length) {
-        focusableElements[index + 1].focus();
+      const step = (e.key === "Tab" && e.shiftKey) ? -1 : 1;
+      
+      if (index > -1 && index + step >= 0 && index + step < focusableElements.length) {
+        focusableElements[index + step].focus();
       }
     }
   };
