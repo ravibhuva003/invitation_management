@@ -28,6 +28,7 @@ export default function InvitationForm({
   // Autocomplete state
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredNames, setFilteredNames] = useState([]);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
   const wrapperRef = useRef(null);
 
   // Village Modal state
@@ -85,6 +86,7 @@ export default function InvitationForm({
         (n.name || "").toLowerCase().includes(val.toLowerCase())
       );
       setFilteredNames(filtered);
+      setActiveSuggestionIndex(0);
       setShowSuggestions(true);
     } else {
       setShowSuggestions(false);
@@ -94,6 +96,44 @@ export default function InvitationForm({
   const handleSelectName = (selectedName) => {
     setName(selectedName);
     setShowSuggestions(false);
+    setActiveSuggestionIndex(0);
+  };
+
+  const handleNameKeyDown = (e) => {
+    if (!showSuggestions) return;
+    
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (activeSuggestionIndex < filteredNames.length - 1) {
+        setActiveSuggestionIndex(activeSuggestionIndex + 1);
+      }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (activeSuggestionIndex > 0) {
+        setActiveSuggestionIndex(activeSuggestionIndex - 1);
+      }
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (filteredNames[activeSuggestionIndex]) {
+        handleSelectName(filteredNames[activeSuggestionIndex].name);
+      }
+    }
+  };
+
+  const handleEnterKey = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const form = e.target.form;
+      if (!form) return;
+      const focusableElements = Array.from(form.elements).filter(el => 
+        !el.disabled && el.tabIndex !== -1 && 
+        (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.tagName === 'BUTTON')
+      );
+      const index = focusableElements.indexOf(e.target);
+      if (index > -1 && index + 1 < focusableElements.length) {
+        focusableElements[index + 1].focus();
+      }
+    }
   };
 
   const handleCategoryToggle = (catKey) => {
@@ -197,6 +237,7 @@ export default function InvitationForm({
               style={{ width: '90px', padding: '8px', fontSize: '15px' }}
               value={categories[catKey].evening_29}
               onChange={(e) => handleCategoryNumberChange(catKey, 'evening_29', e.target.value)}
+              onKeyDown={handleEnterKey}
               min="0"
             />
           )}
@@ -210,6 +251,7 @@ export default function InvitationForm({
               style={{ width: '90px', padding: '8px', fontSize: '15px' }}
               value={categories[catKey].morning_30}
               onChange={(e) => handleCategoryNumberChange(catKey, 'morning_30', e.target.value)}
+              onKeyDown={handleEnterKey}
               min="0"
             />
           )}
@@ -223,6 +265,7 @@ export default function InvitationForm({
               style={{ width: '90px', padding: '8px', fontSize: '15px' }}
               value={categories[catKey].afternoon_30}
               onChange={(e) => handleCategoryNumberChange(catKey, 'afternoon_30', e.target.value)}
+              onKeyDown={handleEnterKey}
               min="0"
             />
           )}
@@ -245,6 +288,7 @@ export default function InvitationForm({
                 placeholder="નામ દાખલ કરો" 
                 value={name}
                 onChange={handleNameChange}
+                onKeyDown={handleNameKeyDown}
                 onFocus={() => { if(name) setShowSuggestions(true); }}
                 style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
                 autoFocus
@@ -256,7 +300,7 @@ export default function InvitationForm({
                   backgroundColor: 'var(--bg-card)', 
                   border: '1px solid var(--border-color)', 
                   borderRadius: '4px',
-                  maxHeight: '150px',
+                  maxHeight: '200px',
                   overflowY: 'auto',
                   zIndex: 10,
                   boxShadow: 'var(--shadow-card)'
@@ -264,10 +308,17 @@ export default function InvitationForm({
                   {filteredNames.map((item, idx) => (
                     <div 
                       key={item.id || idx}
-                      style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid var(--border-color)', fontSize: '14px' }}
+                      style={{ 
+                        padding: '10px 14px', 
+                        cursor: 'pointer', 
+                        borderBottom: '1px solid var(--border-color)', 
+                        fontSize: '14px',
+                        backgroundColor: idx === activeSuggestionIndex ? 'rgba(138, 28, 20, 0.1)' : 'transparent',
+                        color: idx === activeSuggestionIndex ? 'var(--primary)' : 'var(--text-main)',
+                        fontWeight: idx === activeSuggestionIndex ? '600' : '400'
+                      }}
                       onClick={() => handleSelectName(item.name)}
-                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(26, 115, 232, 0.1)'}
-                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                      onMouseEnter={() => setActiveSuggestionIndex(idx)}
                     >
                       {item.name}
                     </div>

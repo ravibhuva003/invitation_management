@@ -401,18 +401,27 @@ body {
   font-size: 13px;
 }
 
-.data-table th, .data-table td {
-  padding: 12px 16px;
+.data-table th,
+.data-table td {
+  padding: 10px 12px;
+  text-align: left;
   border-bottom: 1px solid var(--border-color);
+  font-size: 15px; /* Increased font size */
 }
 
 .data-table th {
-  background-color: var(--bg-card);
-  color: var(--text-main);
-  font-weight: 700;
-  cursor: pointer;
-  user-select: none;
+  font-weight: 600;
+  color: var(--text-muted);
+  background-color: var(--bg-page);
+  position: sticky;
+  top: 0;
+  z-index: 10;
   white-space: nowrap;
+  font-size: 15px; /* Increased font size for headers */
+}
+
+.data-table td {
+  color: var(--text-main);
 }
 
 .data-table th:hover {

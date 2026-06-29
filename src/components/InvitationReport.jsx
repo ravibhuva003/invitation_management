@@ -45,6 +45,16 @@ export default function InvitationReport({
     return total;
   };
 
+  const getCategoriesString = (cats) => {
+    if (!cats) return "-";
+    const active = [];
+    if (cats.vyavahar?.enabled) active.push("વ્યવહારવાળી યાદી");
+    if (cats.two_person?.enabled) active.push("બે વ્યક્તિ જોડે યાદી");
+    if (cats.one_person?.enabled) active.push("એક વ્યક્તિ યાદી");
+    if (cats.digital?.enabled) active.push("ડિજિટલ આમંત્રણ યાદી");
+    return active.length > 0 ? active.join(", ") : "-";
+  };
+
   const filteredEntries = useMemo(() => {
     let result = entries;
     
@@ -71,6 +81,12 @@ export default function InvitationReport({
           aVal = getMealTotal(a.categories, sortBy, filterCategory);
           bVal = getMealTotal(b.categories, sortBy, filterCategory);
           return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
+        } else if (sortBy === "categories") {
+          aVal = getCategoriesString(a.categories);
+          bVal = getCategoriesString(b.categories);
+          if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+          if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+          return 0;
         } else {
           aVal = (a[sortBy] || "").toLowerCase();
           bVal = (b[sortBy] || "").toLowerCase();
@@ -106,15 +122,7 @@ export default function InvitationReport({
     currentPage * itemsPerPage
   );
 
-  const getCategoriesString = (cats) => {
-    if (!cats) return "-";
-    const active = [];
-    if (cats.vyavahar?.enabled) active.push("વ્યવહારવાળી યાદી");
-    if (cats.two_person?.enabled) active.push("બે વ્યક્તિ જોડે યાદી");
-    if (cats.one_person?.enabled) active.push("એક વ્યક્તિ યાદી");
-    if (cats.digital?.enabled) active.push("ડિજિટલ આમંત્રણ યાદી");
-    return active.length > 0 ? active.join(", ") : "-";
-  };
+
 
   const exportToExcel = () => {
     if (filteredEntries.length === 0) {
@@ -250,7 +258,11 @@ export default function InvitationReport({
               <th onClick={() => handleSort("whatsapp")} style={{ cursor: 'pointer', userSelect: 'none' }}>
                 WhatsApp <SortIcon field="whatsapp" />
               </th>
-              {filterCategory === "all" && <th>કેટેગરી</th>}
+              {filterCategory === "all" && (
+                <th onClick={() => handleSort("categories")} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                  કેટેગરી <SortIcon field="categories" />
+                </th>
+              )}
               <th onClick={() => handleSort("evening_29")} style={{ cursor: 'pointer', userSelect: 'none' }}>
                 29/8 સાંજે <SortIcon field="evening_29" />
               </th>
