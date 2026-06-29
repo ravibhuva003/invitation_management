@@ -361,7 +361,7 @@ export default function InvitationForm({
           </div>
 
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <div className="table-container" style={{ overflowX: 'auto', marginBottom: '24px', flex: 1 }}>
+            <div className="table-container" style={{ overflowX: 'auto', marginBottom: '8px', flex: 1 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '16px' }}>
                 <thead style={{ backgroundColor: 'var(--bg-page)' }}>
                   <tr>
@@ -380,7 +380,7 @@ export default function InvitationForm({
               </table>
             </div>
 
-            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginTop: 'auto', paddingTop: '16px' }}>
+            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', paddingTop: '8px' }}>
               {editEntry && (
                 <button type="button" className="btn btn-outline" style={{ padding: '12px 28px', fontWeight: '600', fontSize: '16px' }} onClick={onCancelEdit}>
                   રદ કરો
