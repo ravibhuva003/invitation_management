@@ -199,13 +199,44 @@ export default function Settings({ onUpdateCreds, showToast, entries, cities }) 
           </div>
           <div className="form-group" style={{ gridTemplateColumns: '1fr', marginTop: '16px' }}>
             <label className="form-label" style={{ marginBottom: '8px' }}>Google Drive Auto-Backup Webhook URL (Optional)</label>
-            <input
-              type="url"
-              className="form-input"
-              value={driveWebhook}
-              onChange={(e) => setDriveWebhook(e.target.value)}
-              placeholder="https://script.google.com/macros/s/.../exec"
-            />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="url"
+                className="form-input"
+                style={{ flex: 1 }}
+                value={driveWebhook}
+                onChange={(e) => setDriveWebhook(e.target.value)}
+                placeholder="https://script.google.com/macros/s/.../exec"
+              />
+              <button 
+                type="button" 
+                className="btn btn-outline"
+                onClick={() => {
+                  if (!driveWebhook) {
+                    showToast("પહેલા URL દાખલ કરો", "error");
+                    return;
+                  }
+                  const backupData = {
+                    invitations: entries || [],
+                    cities: cities || [],
+                    exportDate: new Date().toISOString()
+                  };
+                  fetch(driveWebhook.trim(), {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify(backupData)
+                  }).then(() => {
+                    showToast("Backup sent! તમારી Google Drive ચેક કરો.", "success");
+                  }).catch(err => {
+                    console.error("Test Drive Backup Error:", err);
+                    showToast("Backup મોકલવામાં ભૂલ આવી.", "error");
+                  });
+                }}
+              >
+                ટેસ્ટ કરો
+              </button>
+            </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
             <button 

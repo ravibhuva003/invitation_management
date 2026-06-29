@@ -158,7 +158,7 @@ export default function App() {
         fetch(driveWebhook, {
           method: "POST",
           mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "text/plain" },
           body: JSON.stringify(backupData)
         }).then(() => {
           console.log("Auto Backup uploaded to Google Drive successfully.");
