@@ -137,9 +137,10 @@ export default function InvitationReport({
       "ગામ": e.village || "",
       "મોબાઈલ નંબર": e.mobile || "",
       "WhatsApp": e.whatsapp || "",
-      "29/8 સાંજે": getMealTotal(e.categories, 'evening_29', filterCategory) || 0,
-      "30/8 સવારે": getMealTotal(e.categories, 'morning_30', filterCategory) || 0,
-      "30/8 બપોરે": getMealTotal(e.categories, 'afternoon_30', filterCategory) || 0,
+      "29/8 સાંજે": getMealTotal(e.categories, 'evening_29', filterCategory) || "",
+      "30/8 સવારે": getMealTotal(e.categories, 'morning_30', filterCategory) || "",
+      "30/8 બપોરે": getMealTotal(e.categories, 'afternoon_30', filterCategory) || "",
+      "કુલ સંખ્યા": (getMealTotal(e.categories, 'evening_29', filterCategory) || 0) + (getMealTotal(e.categories, 'morning_30', filterCategory) || 0) + (getMealTotal(e.categories, 'afternoon_30', filterCategory) || 0),
     }));
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
@@ -273,6 +274,7 @@ export default function InvitationReport({
               <th onClick={() => handleSort("afternoon_30")} style={{ cursor: 'pointer', userSelect: 'none' }}>
                 30/8 બપોરે <SortIcon field="afternoon_30" />
               </th>
+              <th>કુલ સંખ્યા</th>
               <th className="actions-cell">એક્શન</th>
             </tr>
           </thead>
@@ -283,17 +285,24 @@ export default function InvitationReport({
                   <td>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
                   <td style={{ fontWeight: '500' }}>{entry.name}</td>
                   <td>{entry.village}</td>
-                  <td>{entry.address || "-"}</td>
-                  <td>{entry.mobile || "-"}</td>
-                  <td>{entry.whatsapp || "-"}</td>
+                  <td>{entry.address || ""}</td>
+                  <td>{entry.mobile || ""}</td>
+                  <td>{entry.whatsapp || ""}</td>
                   {filterCategory === "all" && (
                     <td style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
                       {getCategoriesString(entry.categories)}
                     </td>
                   )}
-                  <td style={{ textAlign: 'center' }}>{getMealTotal(entry.categories, 'evening_29', filterCategory) || "-"}</td>
-                  <td style={{ textAlign: 'center' }}>{getMealTotal(entry.categories, 'morning_30', filterCategory) || "-"}</td>
-                  <td style={{ textAlign: 'center' }}>{getMealTotal(entry.categories, 'afternoon_30', filterCategory) || "-"}</td>
+                  <td style={{ textAlign: 'center' }}>{getMealTotal(entry.categories, 'evening_29', filterCategory) || ""}</td>
+                  <td style={{ textAlign: 'center' }}>{getMealTotal(entry.categories, 'morning_30', filterCategory) || ""}</td>
+                  <td style={{ textAlign: 'center' }}>{getMealTotal(entry.categories, 'afternoon_30', filterCategory) || ""}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <span className="hide-on-print">
+                      { (getMealTotal(entry.categories, 'evening_29', filterCategory) || 0) + 
+                        (getMealTotal(entry.categories, 'morning_30', filterCategory) || 0) + 
+                        (getMealTotal(entry.categories, 'afternoon_30', filterCategory) || 0) || "" }
+                    </span>
+                  </td>
                   <td className="actions-cell">
                     <button
                       className="btn btn-outline"

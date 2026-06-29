@@ -641,7 +641,8 @@ body {
   .btn,
   .toast-container,
   .modal-overlay,
-  .tabs-container {
+  .tabs-container,
+  .hide-on-print {
     display: none !important;
   }
 
