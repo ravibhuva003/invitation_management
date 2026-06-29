@@ -317,7 +317,7 @@ export default function InvitationForm({
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '16px' }}>
             <div className="form-group" style={{ marginBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '2px' }}>
               <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>મોબાઈલ નંબર</label>
               <input 
@@ -360,7 +360,7 @@ export default function InvitationForm({
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div className="table-container" style={{ overflowX: 'auto', marginBottom: '24px', flex: 1 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '16px' }}>
                 <thead style={{ backgroundColor: 'var(--bg-page)' }}>
