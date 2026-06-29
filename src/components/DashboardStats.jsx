@@ -32,6 +32,22 @@ export default function DashboardStats({ entries, cities, isFirebase }) {
   });
   const sortedCategories = Object.entries(categoryCounts)
     .sort((a, b) => b[1] - a[1]);
+  // Meal Totals
+  let evening_29_total = 0;
+  let morning_30_total = 0;
+  let afternoon_30_total = 0;
+
+  entries.forEach(c => {
+    if (!c.categories) return;
+    for (const key of ['vyavahar', 'two_person', 'one_person', 'digital']) {
+      const cat = c.categories[key];
+      if (cat && cat.enabled) {
+        evening_29_total += Number(cat.evening_29) || 0;
+        morning_30_total += Number(cat.morning_30) || 0;
+        afternoon_30_total += Number(cat.afternoon_30) || 0;
+      }
+    }
+  });
 
   return (
     <div>
@@ -79,6 +95,39 @@ export default function DashboardStats({ entries, cities, isFirebase }) {
             <p style={{ fontSize: '15px', marginTop: '6px' }}>
               {isFirebase ? "Firebase લાઈવ" : "ડેમો મોડ (લોકલ)"}
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Meal Stats Cards */}
+      <div className="stats-grid" style={{ marginTop: '16px' }}>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(255, 107, 107, 0.1)', color: '#ff6b6b' }}>
+            <Users size={22} />
+          </div>
+          <div className="stat-details">
+            <h3>29/8 સાંજે</h3>
+            <p>{evening_29_total}</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(77, 171, 247, 0.1)', color: '#4dabf7' }}>
+            <Users size={22} />
+          </div>
+          <div className="stat-details">
+            <h3>30/8 સવારે</h3>
+            <p>{morning_30_total}</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(252, 196, 25, 0.1)', color: '#fcc419' }}>
+            <Users size={22} />
+          </div>
+          <div className="stat-details">
+            <h3>30/8 બપોરે</h3>
+            <p>{afternoon_30_total}</p>
           </div>
         </div>
       </div>
