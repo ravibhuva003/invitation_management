@@ -182,7 +182,7 @@ export default function InvitationReport({
           />
         </div>
         
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           {googleSheetsViewUrl && (
             <a 
               href={googleSheetsViewUrl}

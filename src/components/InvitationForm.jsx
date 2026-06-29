@@ -236,7 +236,7 @@ export default function InvitationForm({
       <div className="form-card" style={{ padding: '24px 32px', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
         <form onSubmit={handleFormSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+          <div className="form-grid-3" style={{ marginBottom: '24px' }}>
             <div className="form-group" style={{ position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '2px' }} ref={wrapperRef}>
               <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>નામ *</label>
               <input 
@@ -317,7 +317,7 @@ export default function InvitationForm({
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '16px' }}>
+          <div className="form-grid-3" style={{ marginBottom: '16px' }}>
             <div className="form-group" style={{ marginBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '2px' }}>
               <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>મોબાઈલ નંબર</label>
               <input 
@@ -380,7 +380,7 @@ export default function InvitationForm({
               </table>
             </div>
 
-            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', paddingTop: '8px' }}>
+            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', paddingTop: '8px', flexWrap: 'wrap' }}>
               {editEntry && (
                 <button type="button" className="btn btn-outline" style={{ padding: '12px 28px', fontWeight: '600', fontSize: '16px' }} onClick={onCancelEdit}>
                   રદ કરો

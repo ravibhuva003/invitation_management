@@ -84,7 +84,7 @@ export default function DashboardStats({ entries, cities, isFirebase }) {
       </div>
 
       {/* Grid for Village and Category breakdowns */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '10px' }} className="crm-layout-breakdowns">
+      <div className="grid-cols-2 crm-layout-breakdowns" style={{ marginTop: '10px' }}>
         {/* Village Counts Card */}
         <div className="form-card" style={{ padding: '20px' }}>
           <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
