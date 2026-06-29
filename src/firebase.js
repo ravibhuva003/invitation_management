@@ -582,40 +582,24 @@ export const dbOperations = {
     }
 
     if (isFirebaseConnected && db) {
-      // Restore to Firebase
-      // Delete existing invitations
-      const invSnapshot = await getDocs(collection(db, "invitation_entries"));
-      const batchDeleteInv = writeBatch(db);
-      invSnapshot.docs.forEach((docSnap) => {
-        batchDeleteInv.delete(docSnap.ref);
-      });
-      await batchDeleteInv.commit();
-
-      // Delete existing villages (cities)
-      const vilSnapshot = await getDocs(collection(db, "villages"));
-      const batchDeleteVil = writeBatch(db);
-      vilSnapshot.docs.forEach((docSnap) => {
-        batchDeleteVil.delete(docSnap.ref);
-      });
-      await batchDeleteVil.commit();
-
-      // Insert new invitations
+      // Restore to Firebase (Merge without deleting old data)
+      
+      // Insert or Update invitations
       if (invitations && invitations.length > 0) {
         const batchInsertInv = writeBatch(db);
         invitations.forEach(inv => {
-          // Exclude id from the object itself when writing to doc, or let firestore generate ID
-          const newDocRef = doc(collection(db, "invitation_entries"));
-          batchInsertInv.set(newDocRef, inv);
+          const docRef = inv.id ? doc(db, "invitation_entries", inv.id) : doc(collection(db, "invitation_entries"));
+          batchInsertInv.set(docRef, inv, { merge: true });
         });
         await batchInsertInv.commit();
       }
 
-      // Insert new villages
+      // Insert or Update villages
       if (cities && cities.length > 0) {
         const batchInsertVil = writeBatch(db);
         cities.forEach(vil => {
-          const newDocRef = doc(collection(db, "villages"));
-          batchInsertVil.set(newDocRef, vil);
+          const docRef = vil.id ? doc(db, "villages", vil.id) : doc(collection(db, "villages"));
+          batchInsertVil.set(docRef, vil, { merge: true });
         });
         await batchInsertVil.commit();
       }

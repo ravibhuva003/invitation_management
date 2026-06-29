@@ -129,7 +129,7 @@ export default function Settings({ onUpdateCreds, showToast, entries, cities }) 
     reader.onload = async (event) => {
       try {
         const backupData = JSON.parse(event.target.result);
-        if (confirm("ચેતવણી: આ રિસ્ટોર તમારા હાલના તમામ ડેટાને ડિલીટ કરી દેશે અને બેકઅપ ફાઈલમાંથી નવો ડેટા લાવશે. શું તમે આગળ વધવા માંગો છો?")) {
+        if (confirm("શું તમે આ બેકઅપ ફાઈલમાંથી ડેટા ઉમેરવા માંગો છો? (જૂનો ડેટા ડિલીટ થશે નહિ, ફક્ત નવો ડેટા ઉમેરાશે)")) {
           await dbOperations.restoreDatabase(backupData);
           showToast("ડેટા સફળતાપૂર્વક રિસ્ટોર થઈ ગયો છે! એપ્લિકેશન રીલોડ થઈ રહી છે...", "success");
           setTimeout(() => window.location.reload(), 2000);
