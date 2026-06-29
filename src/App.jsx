@@ -311,7 +311,7 @@ export default function App() {
         <div>
           {/* Header */}
           <div className="header-bar" style={{ justifyContent: 'center' }}>
-            <h1 className="header-title">સરનામા બુક CRM</h1>
+            <h1 className="header-title">Smart Invitation</h1>
           </div>
           {/* Login Card */}
           <Login 

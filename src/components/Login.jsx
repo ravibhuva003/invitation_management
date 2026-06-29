@@ -35,7 +35,7 @@ export default function Login({ onLogin, errorMsg, isLoading }) {
             <Lock size={28} />
           </div>
           <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-main)' }}>એડમિન લોગિન</h2>
-          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>Address Book CRM એક્સેસ કરવા લોગિન કરો</p>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>Smart Invitation CRM એક્સેસ કરવા લોગિન કરો</p>
         </div>
 
         {errorMsg && (
