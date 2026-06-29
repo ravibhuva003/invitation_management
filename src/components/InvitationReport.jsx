@@ -108,8 +108,10 @@ export default function InvitationReport({
     const exportData = filteredEntries.map((e, index) => ({
       "ક્રમ": index + 1,
       "નામ": e.name || "",
+      "સરનામું": e.address || "",
       "ગામ": e.village || "",
       "મોબાઈલ નંબર": e.mobile || "",
+      "WhatsApp": e.whatsapp || "",
       "29/8 સાંજે": getMealTotal(e.categories, 'evening_29', filterCategory) || 0,
       "30/8 સવારે": getMealTotal(e.categories, 'morning_30', filterCategory) || 0,
       "30/8 બપોરે": getMealTotal(e.categories, 'afternoon_30', filterCategory) || 0,

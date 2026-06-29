@@ -1,50 +1,57 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Gujarati:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+Gujarati:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Gujarati:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Colors */
-  --bg-page: #d2e3fc;
+  /* Colors - Premium Wedding Theme (Maroon, Gold, Ivory) */
+  --bg-page: #fdfaf6;
   --bg-card: #ffffff;
-  --text-main: #202124;
-  --text-muted: #5f6368;
-  --primary: #1a73e8;
-  --primary-hover: #1557b0;
-  --header-bg: #1a73e8;
-  --header-text: #ffffff;
-  --border-color: #dadce0;
+  --text-main: #3e2723;
+  --text-muted: #795548;
+  --primary: #8a1c14; /* Deep Maroon */
+  --primary-hover: #6a150f;
+  --header-bg-gradient: linear-gradient(135deg, #7b1113 0%, #9b2226 100%);
+  --header-text: #fdfaf6;
+  --border-color: #e5d8cf;
   --input-bg: #ffffff;
-  --input-border: #dadce0;
+  --input-border: #d4c4b7;
   --btn-danger: #d93025;
   --btn-danger-hover: #b31412;
-  --btn-success: #188038;
-  --btn-success-hover: #13632b;
-  --btn-warning: #f29900;
-  --btn-category: #1a73e8;
-  --btn-category-hover: #1557b0;
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --btn-success: #2e5a31;
+  --btn-success-hover: #214123;
+  --btn-warning: #c49000;
+  --btn-category: #f9f2e8; /* Soft Gold/Ivory Background */
+  --btn-category-border: #d4af37; /* Gold */
+  --btn-category-text: #503700;
+  --btn-category-active-bg: #8a1c14;
+  --btn-category-active-text: #ffffff;
+  --shadow-card: 0 8px 24px rgba(138, 28, 20, 0.08), 0 2px 8px rgba(138, 28, 20, 0.04);
+  --shadow-lg: 0 16px 32px rgba(138, 28, 20, 0.12), 0 8px 16px rgba(138, 28, 20, 0.08);
   
   /* Fonts */
   --font-family: 'Outfit', 'Noto Sans Gujarati', system-ui, -apple-system, sans-serif;
-  --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --font-heading: 'Noto Serif Gujarati', 'Cinzel', serif;
+  --transition-fast: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Mode Overrides */
+/* Dark Mode Overrides (Optional but keeping consistent) */
 [data-theme="dark"] {
-  --bg-page: #0f172a;
-  --bg-card: #1e293b;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --primary: #38bdf8;
-  --primary-hover: #0ea5e9;
-  --header-bg: #1e293b;
-  --header-text: #f8fafc;
-  --border-color: #334155;
-  --input-bg: #0f172a;
-  --input-border: #334155;
-  --btn-category: #3b82f6;
-  --btn-category-hover: #2563eb;
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+  --bg-page: #1a1210;
+  --bg-card: #2a1e1b;
+  --text-main: #fdfaf6;
+  --text-muted: #d4c4b7;
+  --primary: #c94f47;
+  --primary-hover: #e57373;
+  --header-bg-gradient: linear-gradient(135deg, #3e1210 0%, #5a1a16 100%);
+  --header-text: #fdfaf6;
+  --border-color: #4a3631;
+  --input-bg: #1a1210;
+  --input-border: #4a3631;
+  --btn-category: #2a1e1b;
+  --btn-category-border: #8a6c22;
+  --btn-category-text: #d4c4b7;
+  --btn-category-active-bg: #c94f47;
+  --btn-category-active-text: #ffffff;
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.6);
 }
 
 * {
@@ -64,7 +71,7 @@ body {
 
 /* Header Styles */
 .header-bar {
-  background-color: var(--header-bg);
+  background: var(--header-bg-gradient);
   color: var(--header-text);
   padding: 12px 24px;
   display: flex;
@@ -78,9 +85,11 @@ body {
 }
 
 .header-title {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .header-actions {
@@ -127,6 +136,8 @@ body {
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(138, 28, 20, 0.2);
 }
 
 .btn-danger {
@@ -166,16 +177,16 @@ body {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* Category Buttons Specific styling matching Screenshots */
+/* Category Buttons Specific styling */
 .btn-cat {
   background-color: var(--btn-category);
-  color: white;
-  padding: 8px 10px;
-  border-radius: 4px;
+  color: var(--btn-category-text);
+  padding: 8px 12px;
+  border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
   text-align: center;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--btn-category-border);
   cursor: pointer;
   transition: var(--transition-fast);
   display: flex;
@@ -185,13 +196,16 @@ body {
 }
 
 .btn-cat:hover {
-  background-color: var(--btn-category-hover);
-  transform: translateY(-1px);
+  background-color: #f0e6d5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.2);
 }
 
 .btn-cat.active {
-  background-color: #0b57d0;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+  background-color: var(--btn-category-active-bg);
+  color: var(--btn-category-active-text);
+  border-color: var(--btn-category-active-bg);
+  box-shadow: 0 4px 12px rgba(138, 28, 20, 0.3);
 }
 
 /* Form Styles */
