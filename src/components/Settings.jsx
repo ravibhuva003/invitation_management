@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Save, Key, Database, RefreshCw, FileText, Download } from "lucide-react";
+import { Save, Key, Database, RefreshCw, FileText, Download, Upload } from "lucide-react";
 import { getSavedFirebaseConfig, saveFirebaseConfig, dbOperations } from "../firebase";
 
 export default function Settings({ onUpdateCreds, showToast, entries, cities }) {
@@ -20,6 +20,7 @@ export default function Settings({ onUpdateCreds, showToast, entries, cities }) 
   // Webhook URLs state
   const [sheetWebhook, setSheetWebhook] = useState("");
   const [sheetViewLink, setSheetViewLink] = useState("");
+  const [driveWebhook, setDriveWebhook] = useState("");
   const [isTestingConnection, setIsTestingConnection] = useState(false);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function Settings({ onUpdateCreds, showToast, entries, cities }) 
     // Load sheets urls
     setSheetWebhook(localStorage.getItem("crm_sheets_webhook") || "");
     setSheetViewLink(localStorage.getItem("crm_sheets_view_link") || "");
+    setDriveWebhook(localStorage.getItem("crm_drive_webhook") || "");
 
   }, []);
 
@@ -71,7 +73,13 @@ export default function Settings({ onUpdateCreds, showToast, entries, cities }) 
     
     localStorage.setItem("crm_sheets_webhook", url);
     localStorage.setItem("crm_sheets_view_link", sheetViewLink.trim());
-    showToast("Google Sheets કનેક્શન સેવ થયું!", "success");
+    if (driveWebhook.trim()) {
+      localStorage.setItem("crm_drive_webhook", driveWebhook.trim());
+    } else {
+      localStorage.removeItem("crm_drive_webhook");
+    }
+
+    showToast("URL સફળતાપૂર્વક સેવ થઈ ગઈ છે!", "success");
   };
 
   // Test connection to Google Sheets
@@ -112,57 +120,43 @@ export default function Settings({ onUpdateCreds, showToast, entries, cities }) 
     }
   };
 
+  // Restore data from JSON
+  const handleRestoreUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const backupData = JSON.parse(event.target.result);
+        if (confirm("ચેતવણી: આ રિસ્ટોર તમારા હાલના તમામ ડેટાને ડિલીટ કરી દેશે અને બેકઅપ ફાઈલમાંથી નવો ડેટા લાવશે. શું તમે આગળ વધવા માંગો છો?")) {
+          await dbOperations.restoreDatabase(backupData);
+          showToast("ડેટા સફળતાપૂર્વક રિસ્ટોર થઈ ગયો છે! એપ્લિકેશન રીલોડ થઈ રહી છે...", "success");
+          setTimeout(() => window.location.reload(), 2000);
+        }
+      } catch (err) {
+        console.error("Restore Error:", err);
+        showToast("ફાઈલ વાંચવામાં ભૂલ આવી! કૃપા કરીને સાચી JSON બેકઅપ ફાઈલ પસંદ કરો.", "error");
+      }
+    };
+    reader.readAsText(file);
+    // Reset file input
+    e.target.value = null;
+  };
+
   // Backup data
   const handleBackupDownload = () => {
     try {
-      const formattedEntries = (entries || []).map(entry => {
-        const cats = entry.categories || {};
-        
-        const totalEvening = 
-          (Number(cats.vyavahar?.evening_29) || 0) + 
-          (Number(cats.two_person?.evening_29) || 0) + 
-          (Number(cats.one_person?.evening_29) || 0) + 
-          (Number(cats.digital?.evening_29) || 0);
-
-        const totalMorning = 
-          (Number(cats.vyavahar?.morning_30) || 0) + 
-          (Number(cats.two_person?.morning_30) || 0) + 
-          (Number(cats.one_person?.morning_30) || 0) + 
-          (Number(cats.digital?.morning_30) || 0);
-
-        const totalAfternoon = 
-          (Number(cats.vyavahar?.afternoon_30) || 0) + 
-          (Number(cats.two_person?.afternoon_30) || 0) + 
-          (Number(cats.one_person?.afternoon_30) || 0) + 
-          (Number(cats.digital?.afternoon_30) || 0);
-
-        return {
-          "નામ": entry.name || "",
-          "ગામ": entry.village || "",
-          "સરનામું": entry.address || "",
-          "મોબાઈલ નંબર": entry.mobile || "",
-          "WhatsApp": entry.whatsapp || "",
-          "નોંધ": entry.notes || "",
-          "વ્યવહારવાળી યાદી": cats.vyavahar?.enabled ? "હા" : "ના",
-          "બે વ્યક્તિ જોડે": cats.two_person?.enabled ? "હા" : "ના",
-          "એક વ્યક્તિ": cats.one_person?.enabled ? "હા" : "ના",
-          "ડિજિટલ આમંત્રણ": cats.digital?.enabled ? "હા" : "ના",
-          "29/8 સાંજે": totalEvening || 0,
-          "30/8 સવારે": totalMorning || 0,
-          "30/8 બપોરે": totalAfternoon || 0
-        };
-      });
-
       const backupData = {
-        invitations: formattedEntries,
-        cities,
+        invitations: entries || [],
+        cities: cities || [],
         exportDate: new Date().toISOString()
       };
       const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `CRM_Backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `CRM_Backup_Raw_${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -201,6 +195,16 @@ export default function Settings({ onUpdateCreds, showToast, entries, cities }) 
               value={sheetViewLink}
               onChange={(e) => setSheetViewLink(e.target.value)}
               placeholder="https://docs.google.com/spreadsheets/d/.../edit"
+            />
+          </div>
+          <div className="form-group" style={{ gridTemplateColumns: '1fr', marginTop: '16px' }}>
+            <label className="form-label" style={{ marginBottom: '8px' }}>Google Drive Auto-Backup Webhook URL (Optional)</label>
+            <input
+              type="url"
+              className="form-input"
+              value={driveWebhook}
+              onChange={(e) => setDriveWebhook(e.target.value)}
+              placeholder="https://script.google.com/macros/s/.../exec"
             />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
@@ -325,9 +329,23 @@ export default function Settings({ onUpdateCreds, showToast, entries, cities }) 
         <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
           તમારા CRM ના તમામ ડેટા (સંપર્કો અને ગામ) નું બેકઅપ ડાઉનલોડ કરો. આ બેકઅપ ફાઇલનો ઉપયોગ ભવિષ્યમાં ડેટા રીસ્ટોર કરવા માટે થઈ શકે છે.
         </p>
-        <button type="button" className="btn btn-success" onClick={handleBackupDownload}>
-          <Download size={16} /> ડેટા બેકઅપ ડાઉનલોડ કરો (.json)
-        </button>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button type="button" className="btn btn-success" onClick={handleBackupDownload}>
+            <Download size={16} /> ડેટા બેકઅપ ડાઉનલોડ કરો (.json)
+          </button>
+          
+          <div style={{ position: 'relative' }}>
+            <input 
+              type="file" 
+              accept=".json" 
+              onChange={handleRestoreUpload}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+            />
+            <button type="button" className="btn btn-primary">
+              <Upload size={16} /> JSON ફાઈલ અપલોડ કરો (Restore)
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

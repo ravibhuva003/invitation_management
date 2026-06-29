@@ -131,47 +131,40 @@ export default function App() {
     const lastBackupDate = localStorage.getItem("last_auto_backup_date");
 
     if (lastBackupDate !== todayStr) {
-      const formattedEntries = invitationEntries.map(entry => {
-        const cats = entry.categories || {};
-        const totalEvening = (Number(cats.vyavahar?.evening_29) || 0) + (Number(cats.two_person?.evening_29) || 0) + (Number(cats.one_person?.evening_29) || 0) + (Number(cats.digital?.evening_29) || 0);
-        const totalMorning = (Number(cats.vyavahar?.morning_30) || 0) + (Number(cats.two_person?.morning_30) || 0) + (Number(cats.one_person?.morning_30) || 0) + (Number(cats.digital?.morning_30) || 0);
-        const totalAfternoon = (Number(cats.vyavahar?.afternoon_30) || 0) + (Number(cats.two_person?.afternoon_30) || 0) + (Number(cats.one_person?.afternoon_30) || 0) + (Number(cats.digital?.afternoon_30) || 0);
-
-        return {
-          "નામ": entry.name || "",
-          "ગામ": entry.village || "",
-          "સરનામું": entry.address || "",
-          "મોબાઈલ નંબર": entry.mobile || "",
-          "WhatsApp": entry.whatsapp || "",
-          "નોંધ": entry.notes || "",
-          "વ્યવહારવાળી યાદી": cats.vyavahar?.enabled ? "હા" : "ના",
-          "બે વ્યક્તિ જોડે": cats.two_person?.enabled ? "હા" : "ના",
-          "એક વ્યક્તિ": cats.one_person?.enabled ? "હા" : "ના",
-          "ડિજિટલ આમંત્રણ": cats.digital?.enabled ? "હા" : "ના",
-          "29/8 સાંજે": totalEvening || 0,
-          "30/8 સવારે": totalMorning || 0,
-          "30/8 બપોરે": totalAfternoon || 0
-        };
-      });
-
       const backupData = {
-        invitations: formattedEntries,
+        invitations: invitationEntries,
         cities: villages,
         exportDate: new Date().toISOString()
       };
       
+      // 1. Download to Local Downloads folder
       const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       
       const dateForFile = new Date().toISOString().split('T')[0];
-      a.download = `CRM_AutoBackup_${dateForFile}.json`;
+      a.download = `CRM_AutoBackup_Raw_${dateForFile}.json`;
       
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+
+      // 2. Upload to Google Drive (if configured)
+      const driveWebhook = localStorage.getItem("crm_drive_webhook");
+      if (driveWebhook) {
+        fetch(driveWebhook, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(backupData)
+        }).then(() => {
+          console.log("Auto Backup uploaded to Google Drive successfully.");
+        }).catch(err => {
+          console.error("Auto Backup Google Drive upload failed:", err);
+        });
+      }
 
       localStorage.setItem("last_auto_backup_date", todayStr);
       console.log("Auto Backup generated for today:", todayStr);
