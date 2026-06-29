@@ -139,7 +139,9 @@ export default function Settings({ onUpdateCreds, showToast, entries, cities }) 
         return {
           "નામ": entry.name || "",
           "ગામ": entry.village || "",
+          "સરનામું": entry.address || "",
           "મોબાઈલ નંબર": entry.mobile || "",
+          "WhatsApp": entry.whatsapp || "",
           "નોંધ": entry.notes || "",
           "વ્યવહારવાળી યાદી": cats.vyavahar?.enabled ? "હા" : "ના",
           "બે વ્યક્તિ જોડે": cats.two_person?.enabled ? "હા" : "ના",

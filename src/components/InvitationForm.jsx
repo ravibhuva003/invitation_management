@@ -13,7 +13,9 @@ export default function InvitationForm({
 }) {
   const [name, setName] = useState("");
   const [village, setVillage] = useState("");
+  const [address, setAddress] = useState("");
   const [mobile, setMobile] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const [notes, setNotes] = useState("");
 
   const [categories, setCategories] = useState({
@@ -37,7 +39,9 @@ export default function InvitationForm({
     if (editEntry) {
       setName(editEntry.name || "");
       setVillage(editEntry.village || "");
+      setAddress(editEntry.address || "");
       setMobile(editEntry.mobile || "");
+      setWhatsapp(editEntry.whatsapp || "");
       setNotes(editEntry.notes || "");
       if (editEntry.categories) {
         setCategories(editEntry.categories);
@@ -61,7 +65,9 @@ export default function InvitationForm({
   const clearForm = () => {
     setName("");
     setVillage("");
+    setAddress("");
     setMobile("");
+    setWhatsapp("");
     setNotes("");
     setCategories({
       vyavahar: { enabled: false, evening_29: "", morning_30: "", afternoon_30: "" },
@@ -139,7 +145,9 @@ export default function InvitationForm({
     const entryData = {
       name: name.trim(),
       village,
+      address: address.trim(),
       mobile: mobile.trim(),
+      whatsapp: whatsapp.trim(),
       notes: notes.trim(),
       categories: cleanedCategories
     };
@@ -228,7 +236,7 @@ export default function InvitationForm({
       <div className="form-card" style={{ padding: '24px 32px', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
         <form onSubmit={handleFormSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '24px' }}>
             <div className="form-group" style={{ position: 'relative', marginBottom: 0 }} ref={wrapperRef}>
               <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>નામ *</label>
               <input 
@@ -269,7 +277,7 @@ export default function InvitationForm({
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>ગામ</label>
+              <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>ગામ (Optional)</label>
               <div className="village-select-container">
                 <select 
                   className="form-input" 
@@ -297,11 +305,25 @@ export default function InvitationForm({
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>સરનામું (Address)</label>
+              <input 
+                type="text" 
+                className="form-input" 
+                placeholder="સરનામું (Optional)" 
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                style={{ padding: '12px 16px', height: '48px', fontSize: '16px' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>મોબાઈલ નંબર</label>
               <input 
                 type="tel" 
                 className="form-input" 
-                placeholder="મોબાઈલ નંબર" 
+                placeholder="મોબાઈલ નંબર (Optional)" 
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
                 style={{ padding: '12px 16px', height: '48px', fontSize: '16px', borderColor: (mobile.trim() && entries.some(entry => entry.mobile === mobile.trim() && entry.id !== editEntry?.id)) ? 'var(--btn-danger)' : undefined }}
@@ -311,6 +333,18 @@ export default function InvitationForm({
                   આ નંબરનો ડેટા પહેલેથી જ છે!
                 </div>
               )}
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>WhatsApp નંબર</label>
+              <input 
+                type="tel" 
+                className="form-input" 
+                placeholder="WhatsApp નંબર (Optional)" 
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                style={{ padding: '12px 16px', height: '48px', fontSize: '16px' }}
+              />
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>

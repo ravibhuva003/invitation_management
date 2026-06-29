@@ -95,7 +95,9 @@ export const syncInvitationToGoogleSheet = async (webhookUrl, entry) => {
     time: timeStr,
     name: entry.name || "",
     village: entry.village || "",
+    address: entry.address || "",
     mobile: entry.mobile || "",
+    whatsapp: entry.whatsapp || "",
     notes: entry.notes || "",
     
     // વ્યવહારવાળી યાદી

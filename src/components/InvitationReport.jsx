@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Search, Edit, Trash2, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { Search, Edit, Trash2, ChevronLeft, ChevronRight, Download, Printer } from "lucide-react";
 import * as XLSX from "xlsx";
 
 export default function InvitationReport({ 
@@ -190,6 +190,9 @@ export default function InvitationReport({
               </div>
             </a>
           )}
+          <button className="btn btn-primary" onClick={() => window.print()}>
+            <Printer size={16} /> પ્રિન્ટ (Print)
+          </button>
           <button className="btn btn-success" onClick={exportToExcel}>
             <Download size={16} /> Excel Export
           </button>
@@ -207,9 +210,11 @@ export default function InvitationReport({
               <th onClick={() => handleSort("village")} style={{ cursor: 'pointer' }}>
                 ગામ {sortBy === "village" && (sortOrder === "asc" ? "↑" : "↓")}
               </th>
+              <th>સરનામું</th>
               <th onClick={() => handleSort("mobile")} style={{ cursor: 'pointer' }}>
                 મોબાઈલ નંબર {sortBy === "mobile" && (sortOrder === "asc" ? "↑" : "↓")}
               </th>
+              <th>WhatsApp</th>
               {filterCategory === "all" && <th>કેટેગરી</th>}
               <th>29/8 સાંજે</th>
               <th>30/8 સવારે</th>
@@ -224,7 +229,9 @@ export default function InvitationReport({
                   <td>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
                   <td style={{ fontWeight: '500' }}>{entry.name}</td>
                   <td>{entry.village}</td>
-                  <td>{entry.mobile}</td>
+                  <td>{entry.address || "-"}</td>
+                  <td>{entry.mobile || "-"}</td>
+                  <td>{entry.whatsapp || "-"}</td>
                   {filterCategory === "all" && (
                     <td style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
                       {getCategoriesString(entry.categories)}
