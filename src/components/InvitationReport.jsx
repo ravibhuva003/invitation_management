@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Search, Edit, Trash2, ChevronLeft, ChevronRight, Download, Printer } from "lucide-react";
+import { Search, Edit, Trash2, ChevronLeft, ChevronRight, Download, Printer, ArrowUp, ArrowDown, ChevronsUpDown } from "lucide-react";
 import * as XLSX from "xlsx";
 
 export default function InvitationReport({ 
@@ -29,6 +29,22 @@ export default function InvitationReport({
     }
   }, [filterCategory, setHeaderTitle]);
 
+  const getMealTotal = (cats, mealKey, filterCat) => {
+    if (!cats) return 0;
+    if (filterCat !== "all") {
+      const cat = cats[filterCat];
+      return (cat && cat.enabled) ? (Number(cat[mealKey]) || 0) : 0;
+    }
+    let total = 0;
+    for (const key of ['vyavahar', 'two_person', 'one_person', 'digital']) {
+      const cat = cats[key];
+      if (cat && cat.enabled) {
+        total += Number(cat[mealKey]) || 0;
+      }
+    }
+    return total;
+  };
+
   const filteredEntries = useMemo(() => {
     let result = entries;
     
@@ -48,11 +64,20 @@ export default function InvitationReport({
 
     if (sortBy) {
       result = [...result].sort((a, b) => {
-        const aVal = (a[sortBy] || "").toLowerCase();
-        const bVal = (b[sortBy] || "").toLowerCase();
-        if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
-        if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
-        return 0;
+        let aVal, bVal;
+        
+        // Handle nested numeric fields for sorting meals
+        if (sortBy === "evening_29" || sortBy === "morning_30" || sortBy === "afternoon_30") {
+          aVal = getMealTotal(a.categories, sortBy, filterCategory);
+          bVal = getMealTotal(b.categories, sortBy, filterCategory);
+          return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
+        } else {
+          aVal = (a[sortBy] || "").toLowerCase();
+          bVal = (b[sortBy] || "").toLowerCase();
+          if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+          if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+          return 0;
+        }
       });
     }
 
@@ -68,27 +93,18 @@ export default function InvitationReport({
     }
   };
 
+  const SortIcon = ({ field }) => {
+    if (sortBy !== field) return <ChevronsUpDown size={14} style={{ opacity: 0.3, marginLeft: '4px', verticalAlign: 'middle' }} />;
+    return sortOrder === "asc" 
+      ? <ArrowUp size={14} style={{ marginLeft: '4px', color: 'var(--primary)', verticalAlign: 'middle' }} /> 
+      : <ArrowDown size={14} style={{ marginLeft: '4px', color: 'var(--primary)', verticalAlign: 'middle' }} />;
+  };
+
   const totalPages = Math.ceil(filteredEntries.length / itemsPerPage);
   const currentData = filteredEntries.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
-  const getMealTotal = (cats, mealKey, filterCat) => {
-    if (!cats) return 0;
-    if (filterCat !== "all") {
-      const cat = cats[filterCat];
-      return (cat && cat.enabled) ? (Number(cat[mealKey]) || 0) : 0;
-    }
-    let total = 0;
-    for (const key of ['vyavahar', 'two_person', 'one_person', 'digital']) {
-      const cat = cats[key];
-      if (cat && cat.enabled) {
-        total += Number(cat[mealKey]) || 0;
-      }
-    }
-    return total;
-  };
 
   const getCategoriesString = (cats) => {
     if (!cats) return "-";
@@ -170,8 +186,8 @@ export default function InvitationReport({
       </div>
 
       <div className="search-controls">
-        <div className="search-box" style={{ flex: '1', maxWidth: '400px' }}>
-          <Search size={18} style={{ color: 'var(--text-muted)' }} />
+        <div className="search-box" style={{ flex: '1', maxWidth: '400px', border: '1px solid var(--primary)', borderRadius: '6px', padding: '2px', backgroundColor: 'var(--bg-card)' }}>
+          <Search size={18} style={{ color: 'var(--primary)', marginLeft: '10px' }} />
           <input
             type="text"
             placeholder="નામ, ગામ અથવા મોબાઈલ નંબરથી શોધો..."
@@ -180,7 +196,7 @@ export default function InvitationReport({
               setSearchTerm(e.target.value);
               setCurrentPage(1);
             }}
-            style={{ width: '100%', border: 'none', background: 'transparent' }}
+            style={{ width: '100%', border: 'none', background: 'transparent', padding: '10px' }}
           />
         </div>
         
@@ -219,21 +235,31 @@ export default function InvitationReport({
           <thead>
             <tr>
               <th>ક્રમ</th>
-              <th onClick={() => handleSort("name")} style={{ cursor: 'pointer' }}>
-                નામ {sortBy === "name" && (sortOrder === "asc" ? "↑" : "↓")}
+              <th onClick={() => handleSort("name")} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                નામ <SortIcon field="name" />
               </th>
-              <th onClick={() => handleSort("village")} style={{ cursor: 'pointer' }}>
-                ગામ {sortBy === "village" && (sortOrder === "asc" ? "↑" : "↓")}
+              <th onClick={() => handleSort("village")} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                ગામ <SortIcon field="village" />
               </th>
-              <th>સરનામું</th>
-              <th onClick={() => handleSort("mobile")} style={{ cursor: 'pointer' }}>
-                મોબાઈલ નંબર {sortBy === "mobile" && (sortOrder === "asc" ? "↑" : "↓")}
+              <th onClick={() => handleSort("address")} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                સરનામું <SortIcon field="address" />
               </th>
-              <th>WhatsApp</th>
+              <th onClick={() => handleSort("mobile")} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                મોબાઈલ નંબર <SortIcon field="mobile" />
+              </th>
+              <th onClick={() => handleSort("whatsapp")} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                WhatsApp <SortIcon field="whatsapp" />
+              </th>
               {filterCategory === "all" && <th>કેટેગરી</th>}
-              <th>29/8 સાંજે</th>
-              <th>30/8 સવારે</th>
-              <th>30/8 બપોરે</th>
+              <th onClick={() => handleSort("evening_29")} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                29/8 સાંજે <SortIcon field="evening_29" />
+              </th>
+              <th onClick={() => handleSort("morning_30")} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                30/8 સવારે <SortIcon field="morning_30" />
+              </th>
+              <th onClick={() => handleSort("afternoon_30")} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                30/8 બપોરે <SortIcon field="afternoon_30" />
+              </th>
               <th className="actions-cell">એક્શન</th>
             </tr>
           </thead>
