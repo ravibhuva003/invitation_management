@@ -29,8 +29,10 @@ export default function InvitationManagement({
 
   const handleSaveWrapper = async (data, isNew) => {
     await onSaveInvitation(data, isNew, editingEntry?.id);
-    setEditingEntry(null);
-    setActiveView("invitationReport");
+    if (editingEntry) {
+      setEditingEntry(null);
+      setActiveView("invitationReport");
+    }
   };
 
   return (

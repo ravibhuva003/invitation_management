@@ -127,21 +127,33 @@ export default function InvitationForm({
     }
   };
 
-  const handleTabCapture = (e) => {
-    if (e.code === "Enter" || e.key === "Enter" || e.keyCode === 13 || e.code === "Tab" || e.key === "Tab" || e.keyCode === 9) {
+  const handleFormKeyDown = (e) => {
+    if (e.key === "Tab" || e.keyCode === 9) {
       e.preventDefault();
       e.stopPropagation();
-      const form = e.target.form;
-      if (!form) return;
+      
+      const form = e.currentTarget;
+      const currentElement = e.target;
+      
+      // Force IME to commit the composed text before switching focus
+      if (e.isComposing) {
+        currentElement.blur();
+      }
+
       const focusableElements = Array.from(form.elements).filter(el => 
         !el.disabled && el.tabIndex !== -1 && 
-        (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.tagName === 'BUTTON')
+        (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.tagName === 'BUTTON') &&
+        el.type !== 'hidden'
       );
-      const index = focusableElements.indexOf(e.target);
+      
+      const index = focusableElements.indexOf(currentElement);
       const step = e.shiftKey ? -1 : 1;
       
       if (index > -1 && index + step >= 0 && index + step < focusableElements.length) {
-        focusableElements[index + step].focus();
+        // Small delay to ensure blur finishes processing before next focus
+        setTimeout(() => {
+          focusableElements[index + step].focus();
+        }, 10);
       }
     }
   };
@@ -247,7 +259,6 @@ export default function InvitationForm({
               style={{ width: '90px', padding: '8px', fontSize: '15px' }}
               value={categories[catKey].evening_29}
               onChange={(e) => handleCategoryNumberChange(catKey, 'evening_29', e.target.value)}
-              onKeyDownCapture={handleTabCapture}
               min="0"
             />
           )}
@@ -261,7 +272,6 @@ export default function InvitationForm({
               style={{ width: '90px', padding: '8px', fontSize: '15px' }}
               value={categories[catKey].morning_30}
               onChange={(e) => handleCategoryNumberChange(catKey, 'morning_30', e.target.value)}
-              onKeyDownCapture={handleTabCapture}
               min="0"
             />
           )}
@@ -275,7 +285,6 @@ export default function InvitationForm({
               style={{ width: '90px', padding: '8px', fontSize: '15px' }}
               value={categories[catKey].afternoon_30}
               onChange={(e) => handleCategoryNumberChange(catKey, 'afternoon_30', e.target.value)}
-              onKeyDownCapture={handleTabCapture}
               min="0"
             />
           )}
@@ -288,7 +297,7 @@ export default function InvitationForm({
     <div className="crm-layout" style={{ gridTemplateColumns: '1fr', maxWidth: '100%', padding: '16px 24px', height: 'calc(100vh - 80px)' }}>
       <div className="form-card" style={{ padding: '24px 32px', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
-        <form onSubmit={handleFormSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <form onSubmit={handleFormSubmit} onKeyDownCapture={handleFormKeyDown} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div className="form-grid-3" style={{ marginBottom: '24px' }}>
             <div className="form-group" style={{ position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '2px' }} ref={wrapperRef}>
               <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>નામ *</label>
