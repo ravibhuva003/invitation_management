@@ -238,7 +238,7 @@ export default function InvitationForm({
         <form onSubmit={handleFormSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '24px' }}>
             <div className="form-group" style={{ position: 'relative', marginBottom: 0 }} ref={wrapperRef}>
-              <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>નામ *</label>
+              <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>નામ *</label>
               <input 
                 type="text" 
                 className="form-input" 
@@ -246,7 +246,7 @@ export default function InvitationForm({
                 value={name}
                 onChange={handleNameChange}
                 onFocus={() => { if(name) setShowSuggestions(true); }}
-                style={{ padding: '12px 16px', height: '48px', fontSize: '16px' }}
+                style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
                 autoFocus
                 required
               />
@@ -277,13 +277,13 @@ export default function InvitationForm({
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>ગામ (Optional)</label>
+              <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>ગામ (Optional)</label>
               <div className="village-select-container">
                 <select 
                   className="form-input" 
                   value={village}
                   onChange={(e) => setVillage(e.target.value)}
-                  style={{ padding: '12px 16px', height: '48px', fontSize: '16px' }}
+                  style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
                 >
                   <option value="">ગામ પસંદ કરો</option>
                   {villages.map((v) => (
@@ -295,7 +295,7 @@ export default function InvitationForm({
                 <button 
                   type="button" 
                   className="btn btn-primary"
-                  style={{ padding: '0 18px', height: '48px', fontSize: '15px' }}
+                  style={{ padding: '0 18px', height: '52px', fontSize: '15px' }}
                   onClick={() => setIsCityModalOpen(true)}
                   tabIndex="-1"
                 >
@@ -305,28 +305,28 @@ export default function InvitationForm({
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>સરનામું (Address)</label>
+              <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>સરનામું (Address)</label>
               <input 
                 type="text" 
                 className="form-input" 
                 placeholder="સરનામું (Optional)" 
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                style={{ padding: '12px 16px', height: '48px', fontSize: '16px' }}
+                style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
               />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '32px' }}>
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>મોબાઈલ નંબર</label>
+              <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>મોબાઈલ નંબર</label>
               <input 
                 type="tel" 
                 className="form-input" 
                 placeholder="મોબાઈલ નંબર (Optional)" 
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
-                style={{ padding: '12px 16px', height: '48px', fontSize: '16px', borderColor: (mobile.trim() && entries.some(entry => entry.mobile === mobile.trim() && entry.id !== editEntry?.id)) ? 'var(--btn-danger)' : undefined }}
+                style={{ padding: '14px 16px', height: '52px', fontSize: '16px', borderColor: (mobile.trim() && entries.some(entry => entry.mobile === mobile.trim() && entry.id !== editEntry?.id)) ? 'var(--btn-danger)' : undefined }}
               />
               {(mobile.trim() && entries.some(entry => entry.mobile === mobile.trim() && entry.id !== editEntry?.id)) && (
                 <div style={{ color: 'var(--btn-danger)', fontSize: '13px', marginTop: '6px', fontWeight: '600' }}>
@@ -336,26 +336,26 @@ export default function InvitationForm({
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>WhatsApp નંબર</label>
+              <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>WhatsApp નંબર</label>
               <input 
                 type="tel" 
                 className="form-input" 
                 placeholder="WhatsApp નંબર (Optional)" 
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
-                style={{ padding: '12px 16px', height: '48px', fontSize: '16px' }}
+                style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
               />
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label" style={{ fontSize: '15px', marginBottom: '6px', fontWeight: '600' }}>નોંધ</label>
+              <label className="form-label" style={{ fontSize: '15px', marginBottom: '2px', fontWeight: '600' }}>નોંધ</label>
               <input 
                 type="text" 
                 className="form-input" 
                 placeholder="કોઈ વધારાની નોંધ..." 
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                style={{ padding: '12px 16px', height: '48px', fontSize: '16px' }}
+                style={{ padding: '14px 16px', height: '52px', fontSize: '16px' }}
               />
             </div>
           </div>
