@@ -18,10 +18,25 @@ import {
 // Helper to load firebase configuration from localStorage
 export const getSavedFirebaseConfig = () => {
   try {
+    // 1. Check for Environment Variables (Hardcoded in Build/Deployment)
+    const envConfig = {
+      apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAacE79Hsc5UREswENZNaEGWoA064Oumb4",
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "smart-invitation-581b2.firebaseapp.com",
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "smart-invitation-581b2",
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "smart-invitation-581b2.firebasestorage.app",
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "863761558762",
+      appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:863761558762:web:7071ba7b0a48edca347b93"
+    };
+
+    if (envConfig.apiKey && envConfig.projectId) {
+      return envConfig;
+    }
+
+    // 2. Fallback to Local Storage if no env variables exist
     const config = localStorage.getItem("crm_firebase_config");
     return config ? JSON.parse(config) : null;
   } catch (e) {
-    console.error("Error reading Firebase config from localStorage:", e);
+    console.error("Error reading Firebase config:", e);
     return null;
   }
 };
